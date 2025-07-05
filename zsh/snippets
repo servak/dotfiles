@@ -1,0 +1,159 @@
+netstat -tnl
+sudo traceroute -T -p port ip
+sudo traceroute -U -p port ip
+sudo traceroute -I ip
+nc -u ip port
+nc -u -l port
+nc -l 23456 < filename
+nc hostname 23456 > filename
+ss -tnl
+ip route
+ip addr
+ip neighbor
+ip link
+
+# openssl
+openssl s_client -connect host:443 -CAfile `curl-config --ca`
+openssl x509 -in pemfile -inform der -text
+openssl x509 -text -noout -in certfile
+openssl rsa -text -noout -in privatefile
+openssl req -text -noout -in csrfile
+
+## iptables
+iptables -A INPUT -p tcp -t filter -s srcip -j DROP
+iptables -A INPUT -p tcp -t filter -d dstip -j DROP
+iptables -A INPUT -p tcp -t filter --dport dstport -j DROP
+iptables -A OUTPUT -p tcp -s srcip -j REJECT
+iptables -A OUTPUT -p tcp -d dstip -j REJECT
+iptables -A OUTPUT -p tcp --sport srcport -j REJECT
+
+## strace
+strace /bin/ls
+strace -p PID
+strace -e trace=open /bin/ls
+strace -s 1024 /bin/ls
+strace -tt /bin/ls
+strace -f /bin/ls
+strace -T -s 1024 -o /tmp/trace.log curl http://www.yahoo.co.jp/
+
+## mount
+mount -t ext4 /dev/devicename /directory
+umount /directory
+
+mkfs.ext4 /dev/sdb
+
+# git
+git log --graph --date=short --decorate=short --pretty=format:'%C(red)%h %C(reset)-%C(yellow)%d %Creset%s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+git log --graph --all --abbrev-commit --date=relative --pretty=format:'%C(red)%h %C(reset)-%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+git log --stat
+git commit --amend
+git commit --fixup=hash
+git ci --fixup=hash
+git rebase -i --autosquash origin/master
+git revert COMMITHASH -m 1
+## git switch, restoreをなかなか覚えないのでメモ
+git switch -c BRANCH
+git restore FILE
+git restore --staged FILE
+git restore -s HASH
+git submodule foreach --recursive 'git clean -xfdf || true';
+git submodule foreach --recursive 'git reset --hard || true';
+
+# misc
+pstree -alup | less
+rlwrap sqlplus /nolog
+sudo tcpdump -Z root -i eth1 -n tcp port 80 -A
+sudo tcpdump -Z root -i eth1 -n tcp port 80 -w traffic
+tcpdump -r traffic -A
+sudo tcpdump -Z root icmp[icmptype] == 0 or icmp[icmptype] == 8
+sudo tcpdump -Z root -i any -y LINUX_SLL2
+sudo tcpdump -Z root -i any -nl -w - | socat stdin tcp-connect:localhost:9051
+tcpdump -nl -Z root -i any -w -
+
+sudo lsof -i tcp:80
+sudo lsof /var/log/messages
+sudo lsof +D /var/log
+sudo lsof -i
+find /var/log -mmin -3 -ls
+find /var/log -mtime -2 -ls
+find /opt/prometheus/tgroups/ -mmin +5 -delete
+while true; do cmd; sleep 1; done
+find . -type f -exec echo {} \;
+find . -size +100000k
+find ~/Downloads/ -mtime +30 -delete
+vim -u NONE file
+
+## rpm
+# パッケージ一覧
+rpm -qa
+# パッケージ詳細
+rpm -qi openssl
+# ファイル一覧
+rpm -ql openssl
+# 依存関係
+rpm -qR openssl
+# ファイルの含まれるパッケージ
+rpm -qf /etc/crontab
+
+## date
+date +%s
+date +%Y%m%d
+date --date "@1404909631"
+
+## jq
+cat json | jq '.[] | select(.id == "aaaa")'
+cat json | jq '.[] | unique_by(.name)'
+
+## golang
+go test -v -bench=. -cpuprofile=cpu.prof
+go tool pprof readlog-go.test cpu.prof
+go test -run TestSetsRemoteAddr
+
+# for ansible
+ansible-playbook -i inventory.ini -l server --start-at='target task name' --step playbook.yml
+ansible all -m service -a "name=httpd state=restarted"
+
+# docker
+docker pull REPOSITORY[:TAG]
+docker image pull REPOSITORY[:TAG]
+
+docker run -itd IMAGE
+docker container run -itd IMAGE
+
+docker run -it -v /var/www:/var/html -p 8080:80 IMAGE bash
+
+# コンテナをすべて削除する
+docker rm $(docker ps -aq)
+
+# タグなしのイメージをすべて削除する
+docker rmi $(docker images | grep '<none>' | awk '{print$3}')
+
+# ビルドを最初からやりなおす
+docker build --no-cache .
+
+# イメージ保存
+docker save IMAGE > filename.tar
+
+# イメージ取り込み
+docker load < filename.tar
+
+# コンテナをファイル出力する
+docker export CONTAINER > filename.tar
+
+# コンテナ内のファイルをホストにコピーする
+docker cp CONTAINER:filename ./
+
+# python http server
+python -m http.server 8000 # python3
+python -m SimpleHTTPServer 8000 # python2
+
+# kubernetes
+kubectl config set-context --current --namespace "$(kubectl get ns -o name | fzf -d/ --with-nth=2 | cut -d/ -f2)"
+kubectl config use-context $(kubectl config get-contexts -o name | fzf --height=10 --prompt="Kubernetes Context> ")
+kubectl create deployment NAME --image=IMAGE
+kubectl expose -n test deployment nginx --name=NAME-svc --port 80
+kubectl run -i --tty busybox --image=busybox -- sh
+kubectl attach my-pod -i
+kubectl port-forward my-pod 5000:6000
+kubectl exec my-pod -- ls /
+kubectl create job jobName --from=cronjob/cronjobname

@@ -1,0 +1,33 @@
+##################################################
+# Mac用の設定ファイル
+##################################################
+alias gvim='open /Applications/MacVim.app'
+alias -s {png,jpg,bmp,PNG,JPG,BMP}='open -a Preview'
+alias tac='tail -r'
+
+alias sha256sum='gsha256sum'
+alias gls='gls --color'
+if [ -f ~/.dir_colors ]; then
+    eval `gdircolors ~/.dir_colors`
+fi
+
+# Configure eza colors - use default instead of LS_COLORS
+# export EZA_COLORS="$LS_COLORS"  # これが色の崩壊の原因
+
+alias sed="gsed"
+alias k="kubectl"
+alias ghp="gh pr create --web"
+
+export GOENV_GOPATH_PREFIX="${HOME}/.go"
+
+export PYTHONDONTWRITEBYTECODE=1
+vscode () { open -n -b "com.microsoft.VSCode" --args $* }
+export PATH=~/.zsh/bin/Darwin:$GOPATH/bin:$PATH
+
+# Modern CLI tools (replace common commands on Mac)
+alias ls='gls -F'  # 元に戻す
+alias ll='ls -ltrF'
+alias la='ll -a'
+alias tree='eza --tree --color=auto'
+alias exa='eza --group-directories-first --color=auto'  # 別名で使用
+alias cat='bat'

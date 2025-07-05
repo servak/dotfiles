@@ -1,0 +1,22 @@
+##################################################
+# Linux用の設定ファイル
+##################################################
+alias gls="ls --color"
+alias hostname_alias="hostname -a"
+alias -g R='| readlog -f ip,url,date,g'
+alias v="vim"
+
+# 色設定
+if [ -f ~/.dir_colors ]; then
+    eval `dircolors -b ~/.dir_colors`
+fi
+
+export PATH=~/.zsh/bin/Linux/`uname -m`:$PATH
+
+# tmuxのセッションが切れた時にssh出来ない問題を削除する用に変更
+if [ ! -r "$HOME/.ssh/auth_sock" ] ; then
+    if [ "$SSH_AUTH_SOCK" -a "$SSH_AUTH_SOCK" != "$HOME/.ssh/auth_sock" ]; then
+        ln -fs $SSH_AUTH_SOCK $HOME/.ssh/auth_sock
+    fi
+fi
+export SSH_AUTH_SOCK=$HOME/.ssh/auth_sock

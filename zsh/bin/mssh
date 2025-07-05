@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+declare -a ssh_servers=()
+
+usage_exit() {
+        echo "Usage: $0 [-c ssh -o OPTION] HOSTNAMES" 1>&2
+        exit 1
+}
+
+SSH="ssh"
+while getopts c:o:h OPT
+do
+    case $OPT in
+        c)  SSH="$OPTARG"
+            ;;
+        o)  OPTION="$OPTARG"
+            ;;
+        h)  usage_exit
+            ;;
+        \?) usage_exit
+            ;;
+    esac
+done
+
+shift $((OPTIND - 1))
+
+for target in "$@"
+do
+    if [ -f $target ]; then
+        for s in $(cat $target)
+        do
+            ssh_servers=("${ssh_servers[@]}" $target)
+        done
+    else
+        ssh_servers=("${ssh_servers[@]}" $target)
+    fi
+done
+
+if [ "${#ssh_servers[@]}" == 0 ]; then
+    exit 0
+fi
+
+tmux new-window -n "mssh"
+tmux send-keys "$SSH $OPTION ${ssh_servers[0]}" C-m
+ssh_servers=("${ssh_servers[@]:1}")
+
+for host in ${ssh_servers[@]}
+do
+    tmux split-window -h "$SSH $OPTION $host"
+    tmux select-layout tiled > /dev/null
+done
+
+if [ "${#ssh_servers[@]}" -ne "0" ]; then
+    tmux select-pane -t 0
+    tmux set-window-option synchronize-panes on
+    tmux rename-window "mssh"
+fi

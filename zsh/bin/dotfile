@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+ORIGIN=`pwd`
+cd ~/ghq/github.com/servak/dotfiles/
+echo '[host]' > hosts.ini
+for x in $*
+do
+echo $x >> hosts.ini
+done
+ansible-playbook -i hosts.ini ansible.yml -c paramiko
+cd $ORIGIN

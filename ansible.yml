@@ -1,0 +1,50 @@
+- name: copy dotfiles
+  hosts: host
+  vars:
+    dotfiles_dir: ./
+    install_dir: ~/ghq/github.com/servak/dotfiles/
+    zsh_local: ~/.zsh_local
+  tasks:
+    - name: mkdir dotfiles
+      file: path="{{install_dir}}" state=directory
+
+    - name: copy dotfiles repo
+      synchronize:
+        src: "{{dotfiles_dir}}"
+        dest: "{{install_dir}}"
+        recursive: yes
+        rsync_opts:
+          - "--no-motd"
+          - "--exclude=.git"
+
+    - name: set symlink
+      file:
+        src: "{{install_dir}}{{item}}"
+        dest: "~/.{{item}}"
+        state: link
+        force: yes
+      with_items:
+        - zshrc
+        - zsh
+        - vimrc
+        - vim
+        - tmux.conf
+        - tmux
+        - dir_colors
+        - gitconfig
+        - gitignore
+        - ctags
+        - gdbinit
+        - peco
+        - editorconfig
+        - config
+        - emacs.d
+
+    - local_action: stat path="{{zsh_local}}"
+      register: f
+
+    - name: copy zsh_local
+      copy:
+        src: "{{zsh_local}}"
+        dest: "{{zsh_local}}"
+      when: f.stat.exists

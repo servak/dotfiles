@@ -1,0 +1,239 @@
+# Configuration file for dircolors, a utility to help you set the
+# LS_COLORS environment variable used by GNU ls with the --color option.
+
+# Copyright (C) 1996, 1999-2008
+# Free Software Foundation, Inc.
+# Copying and distribution of this file, with or without modification,
+# are permitted provided the copyright notice and this notice are preserved.
+
+# The keywords COLOR, OPTIONS, and EIGHTBIT (honored by the
+# slackware version of dircolors) are recognized but ignored.
+
+# You can copy this file to .dir_colors in your $HOME directory to override
+# the system defaults.
+
+# Below, there should be one TERM entry for each termtype that is colorizable
+TERM Eterm
+TERM ansi
+TERM color-xterm
+TERM con132x25
+TERM con132x30
+TERM con132x43
+TERM con132x60
+TERM con80x25
+TERM con80x28
+TERM con80x30
+TERM con80x43
+TERM con80x50
+TERM con80x60
+TERM cons25
+TERM console
+TERM cygwin
+TERM dtterm
+TERM eterm-color
+TERM gnome
+TERM gnome-256color
+TERM konsole
+TERM kterm
+TERM linux
+TERM linux-c
+TERM mach-color
+TERM mlterm
+TERM putty
+TERM rxvt
+TERM rxvt-cygwin
+TERM rxvt-cygwin-native
+TERM rxvt-unicode
+TERM screen
+TERM screen-256color
+TERM screen-bce
+TERM screen-w
+TERM screen.linux
+TERM vt100
+TERM xterm
+TERM xterm-16color
+TERM xterm-256color
+TERM xterm-88color
+TERM xterm-color
+TERM xterm-debian
+
+# Below are the color init strings for the basic file types. A color init
+# string consists of one or more of the following numeric codes:
+# Attribute codes:
+# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
+# Text color codes:
+# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
+# Background color codes:
+# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
+NORMAL 00       # global default, although everything should be something.
+FILE   00       # normal file
+DIR    04;38;05;75  # directory
+LINK   01;38;05;169  # symbolic link.  (If you set this to 'target' instead of a
+# This is for files with execute permission:
+EXEC 38;05;142;48;05;235;01
+# numerical value, the color is as for the file pointed to.)
+FIFO 38;05;142;48;05;235   # pipe
+SOCK 01;38;05;176      # socket
+DOOR 01;38;05;176      # door
+BLK 38;05;142;48;05;235;01    # block device driver
+CHR 38;05;142;48;05;235;01    # character device driver
+ORPHAN 01;06;38;05;254;48;05;124  # orphaned syminks
+MISSING 01;05;38;05;254;48;05;124 # ... and the files they point to
+SETUID 38;05;255;48;05;124# file that is setuid (u+s)
+SETGID 38;05;237;48;05;221# file that is setgid (g+s)
+STICKY_OTHER_WRITABLE 38;05;16;48;05;41 # dir that is sticky and other-writable (+t,o+w)
+OTHER_WRITABLE 34;42 # dir that is other-writable (o+w) and not sticky
+STICKY 01;38;05;254;48;05;21# dir with the sticky bit set (+t) and not other-writable
+
+# List any file extensions like '.gz' or '.tar' that you would like ls
+# to colorize below. Put the extension, a space, and the color init string.
+# (and any comments you want to add after a '#')
+
+# If you use DOS-style suffixes, you may want to uncomment the following:
+#.cmd 01;32 # executables (bright green)
+#.exe 01;32
+#.com 01;32
+#.btm 01;32
+#.bat 01;32
+# Or if you want to colorize scripts even if they do not have the
+# executable bit actually set.
+#.sh  01;32
+#.csh 01;32
+
+# archives or compressed (bright red)
+.tar 01;38;05;180
+.tgz 01;38;05;180
+.svgz 01;38;05;168
+.arj 01;38;05;168
+.taz 01;38;05;168
+.lzh 01;38;05;168
+.lzma 01;38;05;168
+.zip 01;38;05;180
+.z   01;38;05;168
+.Z   01;38;05;168
+.dz  01;38;05;168
+.gz  01;38;05;168
+.bz2 01;38;05;168
+.bz  01;38;05;168
+.tbz2 01;38;05;168
+.tz  01;38;05;168
+.deb 01;38;05;168
+.rpm 01;38;05;168
+.jar 01;38;05;168
+.rar 01;38;05;168
+.ace 01;38;05;168
+.zoo 01;38;05;168
+.cpio 01;38;05;168
+.7z  01;38;05;168
+.rz  01;38;05;168
+
+.sqfs 01;38;05;168
+.sqfs3 01;38;05;168
+
+# image formats
+.jpg 01;38;05;101
+.jpeg 01;38;05;101
+.gif 01;38;05;101
+.bmp 01;38;05;101
+.pbm 01;38;05;101
+.pgm 01;38;05;101
+.ppm 01;38;05;101
+.tga 01;38;05;101
+.xbm 01;38;05;101
+.xpm 01;38;05;101
+.tif 01;38;05;101
+.tiff 01;38;05;101
+.png 01;38;05;101
+.svg 01;38;05;101
+.mng 01;38;05;101
+.pcx 01;38;05;101
+.mov 01;38;05;101
+.mpg 01;38;05;101
+.mpeg 01;38;05;101
+.m2v 01;38;05;101
+.mkv 01;38;05;101
+.ogm 01;38;05;101
+.mp4 01;38;05;101
+.m4v 01;38;05;101
+.mp4v 01;38;05;101
+.vob 01;38;05;101
+.qt  01;38;05;101
+.nuv 01;38;05;101
+.wmv 01;38;05;101
+.asf 01;38;05;101
+.rm  01;38;05;101
+.rmvb 01;38;05;101
+.flc 01;38;05;101
+.avi 01;38;05;101
+.fli 01;38;05;101
+.gl 01;38;05;101
+.dl 01;38;05;101
+.xcf 01;38;05;101
+.xwd 01;38;05;101
+.yuv 01;38;05;101
+
+# document files
+.pdf 00;38;05;76
+.ps 00;38;05;76
+.txt 00;38;05;72
+.bk 00;38;05;59
+.patch 00;38;05;76
+.diff 00;38;05;76
+.log 00;38;05;72
+.tex 00;38;05;76
+.doc 00;38;05;76
+
+.md 00;38;05;141
+.css 00;38;05;76
+.htm 00;38;05;76
+.html 00;38;05;118
+.xml 00;38;05;131
+.json 00;38;05;141
+.xsl 00;38;05;76
+
+# audio formats
+.aac 00;38;05;44
+.au 00;38;05;44
+.flac 00;38;05;44
+.gsf 00;38;05;44
+.h2song 00;38;05;44
+.mid 00;38;05;44
+.midi 00;38;05;44
+.mka 00;38;05;44
+.mp3 00;38;05;44
+.mpc 00;38;05;44
+.ogg 00;38;05;44
+.ra 00;38;05;44
+.rg 00;38;05;44
+.tta 00;38;05;44
+.wav 00;38;05;44
+
+# configuration Files
+.cfg 00;38;05;227
+.conf 00;38;05;56
+.ini 00;38;05;227
+.reg 00;38;05;227
+
+# development Files
+.pl 01;38;05;209
+.php 01;38;05;33
+.rb 01;38;05;160
+.py 01;38;05;40
+.js 01;38;05;100
+.sh 01;38;05;139
+.c 01;38;05;231
+.cc 01;38;05;111
+.cpp 01;38;05;243
+.cxx 01;38;05;111
+.h 01;38;05;230
+.po 01;38;05;111
+
+.gmo 01;38;05;216
+.ko 01;38;05;216
+.mo 01;38;05;216
+.o 01;38;05;216
+
+# base64
+.b64 00;38;05;79
+
+# vim:filetype=dircolors

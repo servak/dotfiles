@@ -1,0 +1,35 @@
+{
+	".source.go": {
+		"errn": {
+			"prefix": "errn",
+			"body": "if err != nil {\n\treturn err\n}",
+			"description": "Snippet for if err != nil"
+		},
+		"table driven test": {
+			"prefix": "tt",
+			"body": "func Test$1(t *testing.T) {\n\ttestCases := []struct {\n\t\tdesc\tstring\n\t\t$2\n\t}{\n\t\t{\n\t\t\tdesc: \"$3\",\n\t\t\t$4\n\t\t},\n\t}\n\tfor _, tt := range testCases {\n\t\tt.Run(tt.desc, func(t *testing.T) {\n\t\t\t$0\n\t\t})\n\t}\n}",
+			"description": "Snippet for table driven test"
+		},
+		"http server handler test": {
+			"prefix": ["httptest"],
+			"body": [
+				"func TestHttpHandler(t *testing.T) {",
+				"\treq := httptest.NewRequest(http.MethodGet, \"path\", nil)",
+				"\tw := httptest.NewRecorder()",
+				"\thandler(w, req)",
+				"\tres := w.Result()",
+				"\tdefer res.Body.Close()",
+				"\tdata, err := io.ReadAll(res.Body)",
+				"\tif err != nil {",
+				"\t\tt.Errorf(\"expected error to be nil got %v\", err)",
+				"\t}",
+				"\tif string(data) != \"ABC\" {",
+				"\t\tt.Errorf(\"expected ABC got %v\", string(data))",
+				"\t}",
+				"}"
+			]
+		}
+	}
+}
+
+
