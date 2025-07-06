@@ -8,7 +8,7 @@ alias tac='tail -r'
 alias sha256sum='gsha256sum'
 alias gls='gls --color'
 if [ -f ~/.dir_colors ]; then
-    eval `gdircolors ~/.dir_colors`
+    eval `gdircolors -b ~/.dir_colors`
 fi
 
 # Configure eza colors - use default instead of LS_COLORS
