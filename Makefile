@@ -6,7 +6,7 @@
 # ========================================
 
 # 設定ファイル定義
-DOT_FILES = .zshrc .zsh .vimrc .vim .tmux.conf .tmux .dir_colors .gitconfig .gitignore .gvimrc
+DOT_FILES = zshrc zsh vimrc vim tmux.conf tmux dir_colors gitconfig gitignore gvimrc
 CONFIG_FILES = config/starship.toml config/mise/config.toml
 
 # 基本設定
@@ -30,17 +30,17 @@ prepare: starship tmux-plugins
 # 機能別設定
 # ========================================
 
-zsh: $(foreach f, $(filter .zsh%, $(DOT_FILES)), link-dot-file-$(f))
+zsh: $(foreach f, $(filter zsh%, $(DOT_FILES)), link-dot-file-$(f))
 
-vim: $(foreach f, $(filter .vim%, $(DOT_FILES)), link-dot-file-$(f)) vim-dependency gvim
+vim: $(foreach f, $(filter vim%, $(DOT_FILES)), link-dot-file-$(f)) vim-dependency gvim
 
-gvim: $(foreach f, $(filter .gvim%, $(DOT_FILES)), link-dot-file-$(f))
+gvim: $(foreach f, $(filter gvim%, $(DOT_FILES)), link-dot-file-$(f))
 
-tmux: $(foreach f, $(filter .tmux%, $(DOT_FILES)), link-dot-file-$(f))
+tmux: $(foreach f, $(filter tmux%, $(DOT_FILES)), link-dot-file-$(f))
 
-git: $(foreach f, $(filter .git%, $(DOT_FILES)), link-dot-file-$(f))
+git: $(foreach f, $(filter git%, $(DOT_FILES)), link-dot-file-$(f))
 
-dircolors: $(foreach f, $(filter .dir_colors%, $(DOT_FILES)), link-dot-file-$(f))
+dircolors: $(foreach f, $(filter dir_colors%, $(DOT_FILES)), link-dot-file-$(f))
 
 # config設定（OS固有処理含む）
 config: starship-config mise-config
@@ -139,7 +139,7 @@ clean-config-files:
 
 vim-dependency:
 	@echo "Installing vim-plug and plugins..."
-	@curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+	@curl -fLo vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 	@vim +PlugInstall +qall
 
 # ========================================
@@ -149,30 +149,30 @@ vim-dependency:
 make-backup-dir:
 	@mkdir -p $(BACKUPDIR)
 
-link-dot-file-%: %
-	@echo "Create Symlink $(shell echo $< | sed "s/^\.//") => $(HOME)/$<"
-	@ln -snf $(CURRENTDIR)/$< $(HOME)/$<
+link-dot-file-%:
+	@echo "Create Symlink $* => $(HOME)/.$*"
+	@ln -snf $(CURRENTDIR)/$* $(HOME)/.$*
 
-unlink-dot-file-%: %
-	@echo "Remove Symlink $(HOME)/$<"
-	@$(RM) $(HOME)/$<
+unlink-dot-file-%:
+	@echo "Remove Symlink $(HOME)/.$*"
+	@$(RM) $(HOME)/.$*
 
-restore-dot-files-%: %
-	@if [ -f $(BACKUPDIR)/$< -o -d $(BACKUPDIR)/$< ]; then \
-		echo "Restore $(BACKUPDIR)/$< => $(HOME)/$<";\
-		cp -rp $(BACKUPDIR)/$< $(HOME)/;\
+restore-dot-files-%:
+	@if [ -f $(BACKUPDIR)/.$* -o -d $(BACKUPDIR)/.$* ]; then \
+		echo "Restore $(BACKUPDIR)/.$* => $(HOME)/.$*";\
+		cp -rp $(BACKUPDIR)/.$* $(HOME)/;\
 	fi
 
-backup-dot-files-%: %
-	@if [ \( -f $(HOME)/$< -o -d $(HOME)/$< \) -a ! -L $(HOME)/$< ]; then \
-		echo "Create Backup $(HOME)/$< => $(BACKUPDIR)/$<";\
-		cp -rp $(HOME)/$< $(BACKUPDIR)/;\
+backup-dot-files-%:
+	@if [ \( -f $(HOME)/.$* -o -d $(HOME)/.$* \) -a ! -L $(HOME)/.$* ]; then \
+		echo "Create Backup $(HOME)/.$* => $(BACKUPDIR)/.$*";\
+		cp -rp $(HOME)/.$* $(BACKUPDIR)/;\
 	fi
 
-remove-dot-files-%: %
-	@if [ -f $(HOME)/$< -o -d $(HOME)/$< ]; then \
-		echo "Remove $(HOME)/$<";\
-		rm -rf $(HOME)/$< ;\
+remove-dot-files-%:
+	@if [ -f $(HOME)/.$* -o -d $(HOME)/.$* ]; then \
+		echo "Remove $(HOME)/.$*";\
+		rm -rf $(HOME)/.$* ;\
 	fi
 
 # ========================================
