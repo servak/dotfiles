@@ -41,11 +41,11 @@ truncation_length = 5
 truncation_symbol = "…/"
 
 [git_branch]
-style = "fg:64"
+style = "fg:172"
 format = ' [$symbol$branch]($style)'
 
 [git_status]
-style = "fg:64"
+style = "fg:172"
 format = '[$all_status$ahead_behind]($style)'
 conflicted = "!"
 ahead = "⇡${count}"
@@ -81,7 +81,7 @@ format = " [exited:$status]($style)"
 disabled = false
 
 [kubernetes]
-format = ' [k8s:$context/$namespace]($style)'
-style = "fg:blue"
+format = ' [☸:$context/$namespace]($style)'
+style = "fg:64"
 disabled = false
-detect_folders = ["~/.kube"]
+detect_folders = [".kube"]
