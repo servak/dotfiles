@@ -85,3 +85,7 @@ format = ' [☸:$context/$namespace]($style)'
 style = "fg:64"
 disabled = false
 detect_folders = [".kube"]
+
+[character]
+success_symbol = "[➜](bold green)"
+error_symbol = "[➜](bold red)"
