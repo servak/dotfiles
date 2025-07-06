@@ -1,8 +1,4 @@
-tags
-vendor/bundle
-watchr_script
 .DS_Store
-*.pyc
-*.retry
 /CLAUDE.md
 /.claude/*
+.tool-versions

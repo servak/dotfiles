@@ -2,9 +2,6 @@
 # Linux用の設定ファイル
 ##################################################
 alias gls="ls --color"
-alias hostname_alias="hostname -a"
-alias -g R='| readlog -f ip,url,date,g'
-alias v="vim"
 
 # 色設定
 if [ -f ~/.dir_colors ]; then
