@@ -11,8 +11,4 @@
 /zsh/zsh_history
 /zsh/zsh_local
 
-/config/*
-!/config/karabiner/assets/complex_modifications/servak_bindings.json
-!/config/nvim/
-
 /tmux/plugins/

@@ -1,0 +1,87 @@
+# Starship Configuration
+format = """
+$time \
+$username\
+$hostname\
+$directory\
+$git_branch$git_status\
+$kubernetes\
+$python\
+$jobs\
+$cmd_duration\
+$status
+$character"""
+
+add_newline = false
+
+# モジュール設定
+[time]
+disabled = false
+format = "[$time]($style)"
+style = "fg:162"
+time_format = "%H:%M:%S"
+
+[hostname]
+ssh_only = true  # SSH接続時のみ表示
+format = "[$hostname]($style) in "
+style = "fg:172"
+disabled = false
+
+[username]
+show_always = false  # rootまたはSSH時のみ表示
+format = "[$user@]($style)"
+style_user = "fg:172"
+style_root = "bold red"
+
+[directory]
+format = "[$path]($style)[$read_only]($read_only_style)"
+style = "fg:60"
+truncate_to_repo = false
+truncation_length = 5
+truncation_symbol = "…/"
+
+[git_branch]
+style = "fg:64"
+format = ' [$symbol$branch]($style)'
+
+[git_status]
+style = "fg:64"
+format = '[$all_status$ahead_behind]($style)'
+conflicted = "!"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = ""
+untracked = "?"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+[python]
+symbol = "venv:"
+style = "fg:63"
+format = ' [$symbol$virtualenv]($style)'
+detect_extensions = []
+detect_files = []
+detect_folders = []
+
+[jobs]
+style = "fg:135"
+format = " [jobs:$number]($style)"
+
+[cmd_duration]
+min_time = 5000  # 5秒以上で表示
+style = "fg:27"
+format = " [time:$duration]($style)"
+
+[status]
+style = "fg:red bold"
+format = " [exited:$status]($style)"
+disabled = false
+
+[kubernetes]
+format = ' [k8s:$context/$namespace]($style)'
+style = "fg:blue"
+disabled = false
+detect_folders = ["~/.kube"]
