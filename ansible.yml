@@ -1,4 +1,4 @@
-- name: copy dotfiles
+- name: copy dotfiles and setup
   hosts: host
   vars:
     dotfiles_dir: ./
@@ -17,28 +17,10 @@
           - "--no-motd"
           - "--exclude=.git"
 
-    - name: set symlink
-      file:
-        src: "{{install_dir}}{{item}}"
-        dest: "~/.{{item}}"
-        state: link
-        force: yes
-      with_items:
-        - zshrc
-        - zsh
-        - vimrc
-        - vim
-        - tmux.conf
-        - tmux
-        - dir_colors
-        - gitconfig
-        - gitignore
-        - ctags
-        - gdbinit
-        - peco
-        - editorconfig
-        - config
-        - emacs.d
+    - name: run make install to setup dotfiles
+      shell: make install
+      args:
+        chdir: "{{install_dir}}"
 
     - local_action: stat path="{{zsh_local}}"
       register: f
