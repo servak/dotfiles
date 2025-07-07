@@ -1,6 +1,5 @@
-##################################################
-# Mac用の設定ファイル
-##################################################
+eval $(/opt/homebrew/bin/brew shellenv)
+
 alias -s {png,jpg,bmp,PNG,JPG,BMP}='open -a Preview'
 alias tac='tail -r'
 
