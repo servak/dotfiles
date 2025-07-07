@@ -1,11 +1,124 @@
 #!/usr/bin/env bash
+# dotfile - 設定ファイル配布コマンド
+# ansibleの代替として、rsync + make でシンプルに配布
 
-ORIGIN=`pwd`
-cd ~/ghq/github.com/servak/dotfiles/
-echo '[host]' > hosts.ini
-for x in $*
-do
-echo $x >> hosts.ini
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+DEFAULT_DEST="$HOME/ghq/github.com/servak/dotfiles"
+
+show_help() {
+    cat << EOF
+dotfile - 設定ファイル配布コマンド
+
+使用法:
+    dotfile [OPTIONS] HOST...
+
+オプション:
+    -h, --help      このヘルプを表示
+    -n, --dry-run   実際のファイル操作を行わず、何が実行されるかを表示
+    -v, --verbose   詳細な出力を表示
+
+引数:
+    HOST...         配布先ホスト（必須）
+
+例:
+    dotfile server1 server2    # 複数サーバーに配布
+    dotfile -n server1         # 実行内容を確認
+    dotfile -v server1         # 詳細な出力で実行
+EOF
+}
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
+}
+
+error() {
+    echo "[ERROR] $*" >&2
+    exit 1
+}
+
+# オプション解析
+DRY_RUN=false
+VERBOSE=false
+HOSTS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -n|--dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -v|--verbose)
+            VERBOSE=true
+            shift
+            ;;
+        -*)
+            error "不明なオプション: $1"
+            ;;
+        *)
+            HOSTS+=("$1")
+            shift
+            ;;
+    esac
 done
-ansible-playbook -i hosts.ini ansible.yml -c paramiko
-cd $ORIGIN
+
+# ホスト未指定チェック
+if [[ ${#HOSTS[@]} -eq 0 ]]; then
+    error "配布先ホストが指定されていません。使用法: dotfile [OPTIONS] HOST..."
+fi
+
+# 詳細モード設定
+if [[ "$VERBOSE" == true ]]; then
+    set -x
+fi
+
+# リモート配布
+REMOTE_DIR="$DEFAULT_DEST"
+RSYNC_OPTS=(
+    --archive
+    --compress
+    --delete
+    --exclude='.git'
+    --exclude='*.log'
+    --exclude='tmp/'
+    --exclude='*.swp'
+    --exclude='*.swo'
+    --exclude='.DS_Store'
+    --exclude='node_modules/'
+    --exclude='__pycache__/'
+)
+
+if [[ "$VERBOSE" == true ]]; then
+    RSYNC_OPTS+=(--verbose --progress)
+fi
+
+if [[ "$DRY_RUN" == true ]]; then
+    RSYNC_OPTS+=(--dry-run)
+fi
+
+# 各ホストに配布
+for host in "${HOSTS[@]}"; do
+    log "配布開始: $host"
+    
+    if [[ "$DRY_RUN" == true ]]; then
+        log "[DRY RUN] rsync ${RSYNC_OPTS[*]} $DOTFILES_DIR/ $host:$REMOTE_DIR/"
+        log "[DRY RUN] ssh $host \"cd '$REMOTE_DIR' && make install\""
+    else
+        # rsync でファイル配布
+        rsync "${RSYNC_OPTS[@]}" "$DOTFILES_DIR/" "$host:$REMOTE_DIR/"
+        
+        # リモートでmake install実行
+        log "リモートでmake install実行: $host:$REMOTE_DIR"
+        ssh "$host" "cd '$REMOTE_DIR' && make install"
+    fi
+    
+    log "配布完了: $host"
+done
+
+log "全ホストへの配布完了"

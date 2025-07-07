@@ -13,7 +13,7 @@ alias sed="gsed"
 alias k="kubectl"
 alias ghp="gh pr create --web"
 export PYTHONDONTWRITEBYTECODE=1
-code () { open -n -b "com.microsoft.VSCode" --args $* }
+code () { open -n -b "com.microsoft.VSCode" --args $(realpath "$*") }
 export PATH=~/.zsh/bin/Darwin:$PATH
 
 eval "$(mise activate zsh)"
