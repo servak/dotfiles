@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # dotfile - 設定ファイル配布コマンド
-# ansibleの代替として、rsync + make でシンプルに配布
-
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_REALPATH="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$SCRIPT_REALPATH")"
 DOTFILES_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
-DEFAULT_DEST="$HOME/ghq/github.com/servak/dotfiles"
+DEFAULT_DEST="ghq/github.com/servak/dotfiles"
 
 show_help() {
     cat << EOF
@@ -105,19 +104,19 @@ fi
 # 各ホストに配布
 for host in "${HOSTS[@]}"; do
     log "配布開始: $host"
-    
+
     if [[ "$DRY_RUN" == true ]]; then
         log "[DRY RUN] rsync ${RSYNC_OPTS[*]} $DOTFILES_DIR/ $host:$REMOTE_DIR/"
         log "[DRY RUN] ssh $host \"cd '$REMOTE_DIR' && make install\""
     else
         # rsync でファイル配布
         rsync "${RSYNC_OPTS[@]}" "$DOTFILES_DIR/" "$host:$REMOTE_DIR/"
-        
+
         # リモートでmake install実行
         log "リモートでmake install実行: $host:$REMOTE_DIR"
         ssh "$host" "cd '$REMOTE_DIR' && make install"
     fi
-    
+
     log "配布完了: $host"
 done
 
