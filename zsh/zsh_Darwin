@@ -24,4 +24,3 @@ alias ll='ls -ltrF'
 alias la='ll -a'
 alias tree='eza --tree --color=auto'
 alias exa='eza --group-directories-first --color=auto'  # 別名で使用
-alias cat='bat'

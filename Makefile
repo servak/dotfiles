@@ -140,7 +140,7 @@ clean-config-files:
 vim-dependency:
 	@echo "Installing vim-plug and plugins..."
 	@test -f vim/autoload/plug.vim || curl -fLo vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-	@vim -E -s -c "source ~/.vimrc" -c PlugInstall -c qa
+	@vim +PlugInstall +qall
 
 # ========================================
 # ヘルパー関数

@@ -607,11 +607,13 @@ nmap <silent> <Space>g :TigOpenProjectRootDir<CR>
 "------------------------------------
 let g:rustfmt_autosave = 1
 
-call smartinput#define_rule({
-  \ 'at': '[<&]\%#',
-  \ 'char': '''',
-  \ 'input': '''',
-  \ })
+if exists('*smartinput#define_rule')
+  call smartinput#define_rule({
+    \ 'at': '[<&]\%#',
+    \ 'char': '''',
+    \ 'input': '''',
+    \ })
+endif
 
 "------------------------------------
 " quickrun
