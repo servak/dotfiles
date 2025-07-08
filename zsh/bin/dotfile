@@ -106,9 +106,14 @@ for host in "${HOSTS[@]}"; do
     log "配布開始: $host"
 
     if [[ "$DRY_RUN" == true ]]; then
+        log "[DRY RUN] ssh $host \"mkdir -p '$REMOTE_DIR'\""
         log "[DRY RUN] rsync ${RSYNC_OPTS[*]} $DOTFILES_DIR/ $host:$REMOTE_DIR/"
         log "[DRY RUN] ssh $host \"cd '$REMOTE_DIR' && make install\""
     else
+        # リモートに親ディレクトリを作成
+        log "リモートディレクトリ作成: $host:$REMOTE_DIR"
+        ssh "$host" "mkdir -p '$REMOTE_DIR'"
+
         # rsync でファイル配布
         rsync "${RSYNC_OPTS[@]}" "$DOTFILES_DIR/" "$host:$REMOTE_DIR/"
 
