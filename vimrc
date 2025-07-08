@@ -585,6 +585,7 @@ let g:airline#extensions#readonly#symbol = '⭤'
 "------------------------------------
 " Fern
 "------------------------------------
+let g:fern_disable_startup_warnings = 1
 nmap <Leader>T :Fern . -drawer -toggle<CR>
 nmap <Leader>e :Fern %:h -reveal=%<CR>
 
