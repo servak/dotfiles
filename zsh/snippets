@@ -157,3 +157,6 @@ kubectl attach my-pod -i
 kubectl port-forward my-pod 5000:6000
 kubectl exec my-pod -- ls /
 kubectl create job jobName --from=cronjob/cronjobname
+
+# Macでのセキュリティ設定を除外するコマンド
+xattr -d com.apple.quarantine CMDNAME
