@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+import os
+import argparse
+import mimetypes
+
+def is_text_file(path, blocksize=512):
+    """簡易的にテキスト判定"""
+    mime, _ = mimetypes.guess_type(path)
+    if mime and mime.startswith("text/"):
+        return True
+    try:
+        with open(path, "rb") as f:
+            chunk = f.read(blocksize)
+            if b"\0" in chunk:
+                return False
+    except Exception:
+        return False
+    return True
+
+def print_tree(root, exclude, depth=None, prefix=""):
+    """再帰的にディレクトリツリーを表示"""
+    entries = [e for e in os.listdir(root) if e not in exclude]
+    entries.sort()
+    for i, name in enumerate(entries):
+        path = os.path.join(root, name)
+        connector = "└── " if i == len(entries) - 1 else "├── "
+        print(prefix + connector + name)
+        if os.path.isdir(path) and (depth is None or depth > 1):
+            new_prefix = prefix + ("    " if i == len(entries) - 1 else "│   ")
+            print_tree(path, exclude, None if depth is None else depth - 1, new_prefix)
+
+def dump_file(path, root="."):
+    """単一ファイルをダンプ"""
+    relpath = os.path.relpath(path, root)
+    if is_text_file(path):
+        print(f"# {relpath}")
+        print("```")
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            print(f.read())
+        print("```")
+        print()
+    else:
+        print(f"# {relpath} (binary skipped)\n")
+
+def dump_files(root, exclude, depth=None):
+    """ディレクトリ以下のファイルを走査してダンプ"""
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in exclude]
+        if depth is not None:
+            rel = os.path.relpath(dirpath, root)
+            ddepth = 0 if rel == "." else rel.count(os.sep) + 1
+            if ddepth > depth:
+                continue
+        for filename in filenames:
+            dump_file(os.path.join(dirpath, filename), root)
+
+def main():
+    parser = argparse.ArgumentParser(description="Dump directory tree and/or file contents for LLM input")
+    parser.add_argument("target", nargs="?", default=".", help="Target file or directory (default: .)")
+    parser.add_argument("--depth", "-d", type=int, help="Max depth of directories (only when dumping a directory)")
+    parser.add_argument("--exclude", default="node_modules,.git,.venv,dist,build",
+                        help="Comma-separated list of directories to exclude (directory mode only)")
+    args = parser.parse_args()
+
+    target = os.path.abspath(args.target)
+
+    # ファイル指定モード
+    if os.path.isfile(target):
+        dump_file(target, os.path.dirname(target))
+        return
+
+    # ディレクトリ指定モード
+    root = target
+    exclude = args.exclude.split(",")
+
+    print("Directory structure:")
+    print(os.path.basename(root) if args.target != "." else ".")
+    print_tree(root, exclude, args.depth)
+    print()
+    dump_files(root, exclude, args.depth)
+
+if __name__ == "__main__":
+    main()
