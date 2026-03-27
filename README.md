@@ -1,10 +1,10 @@
 DOTFILES
 ========
-vim, zsh, tmuxの設定ファイルをまとめた。
+vim, zsh, fish, tmuxの設定ファイルをまとめた。
 
 ## Installation
 
-vim, zsh, tmuxすべての設定ファイルを入れる。
+vim, zsh, fish, tmuxすべての設定ファイルを入れる。
 ```sh
 make all
 ```
@@ -25,12 +25,27 @@ brew bundle install
 mise install
 ```
 
+### Fish migration
+
+`zsh` の設定はそのまま残したまま、`fish` の設定も追加できます。
+
+```sh
+make fish
+```
+
+デフォルトシェルを切り替える場合だけ、手動で以下を実行してください。
+
+```sh
+chsh -s $(which fish)
+```
+
 #### ツール管理方針
 
 **Brewfile（Global ツール）**: 全プロジェクトで共通使用するツール
 - 基本CLI: `git`, `jq`, `fzf`, `ripgrep`, `tmux` 等
 - 開発支援: `docker-compose`, `lima`, `podman` 等  
 - 言語固有標準ツール: `uv` (Python), `mise`
+- Shell支援: `fish`, `zoxide`, `atuin`
 
 **mise（プロジェクト別バージョン管理）**: プロジェクトごとにバージョンが重要なツール
 - 言語ランタイム: `go`, `node`

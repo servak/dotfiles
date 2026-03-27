@@ -7,7 +7,11 @@
 
 # 設定ファイル定義
 DOT_FILES = zshrc zsh vimrc vim tmux.conf tmux dir_colors gitconfig gitignore gvimrc
-CONFIG_FILES = config/starship.toml config/mise/config.toml
+CONFIG_FILES = config/starship.toml $(CONFIG_FILES_$(OS))
+CONFIG_FILES_Darwin = config/mise/config.toml
+CONFIG_DIRS = config/fish
+CONFIG_FILE_TARGETS = $(foreach f, $(patsubst config/%,%,$(CONFIG_FILES)), link-config-file-$(subst /,__,$(f)))
+CONFIG_DIR_TARGETS = $(foreach d, $(patsubst config/%,%,$(CONFIG_DIRS)), link-config-dir-$(subst /,__,$(d)))
 
 # 基本設定
 CURRENTDIR = $(shell pwd)
@@ -43,19 +47,7 @@ git: $(foreach f, $(filter git%, $(DOT_FILES)), link-dot-file-$(f))
 dircolors: $(foreach f, $(filter dir_colors%, $(DOT_FILES)), link-dot-file-$(f))
 
 # config設定（OS固有処理含む）
-config: starship-config mise-config
-
-starship-config:
-	@echo "Setting up starship config..."
-	@mkdir -p $(HOME)/.config
-	@ln -snf $(CURRENTDIR)/config/starship.toml $(HOME)/.config/starship.toml
-
-mise-config:
-	@if [ "$(OS)" = "Darwin" ]; then \
-		echo "Setting up mise config (macOS only)..."; \
-		mkdir -p $(HOME)/.config/mise; \
-		ln -snf $(CURRENTDIR)/config/mise/config.toml $(HOME)/.config/mise/config.toml; \
-	fi
+config: $(CONFIG_FILE_TARGETS) $(CONFIG_DIR_TARGETS)
 
 # ========================================
 # 環境準備
@@ -88,7 +80,7 @@ tmux/plugins/tpm:
 # ========================================
 
 # バックアップ
-backup: make-backup-dir $(foreach f, $(DOT_FILES), backup-dot-files-$(f)) backup-config-files
+backup: make-backup-dir $(foreach f, $(DOT_FILES), backup-dot-files-$(f)) backup-config-files backup-config-dirs
 
 backup-config-files:
 	@echo "Backing up config files..."
@@ -101,8 +93,15 @@ backup-config-files:
 		cp $(HOME)/.config/mise/config.toml $(BACKUPDIR)/config/mise/; \
 	fi
 
+backup-config-dirs:
+	@echo "Backing up config directories..."
+	@if [ -d $(HOME)/.config/fish -a ! -L $(HOME)/.config/fish ]; then \
+		mkdir -p $(BACKUPDIR)/config; \
+		cp -rp $(HOME)/.config/fish $(BACKUPDIR)/config/; \
+	fi
+
 # リストア
-restore: clean $(foreach f, $(DOT_FILES), restore-dot-files-$(f)) restore-config-files
+restore: clean $(foreach f, $(DOT_FILES), restore-dot-files-$(f)) restore-config-files restore-config-dirs
 
 restore-config-files:
 	@echo "Restoring config files..."
@@ -115,8 +114,15 @@ restore-config-files:
 		cp $(BACKUPDIR)/config/mise/config.toml $(HOME)/.config/mise/; \
 	fi
 
+restore-config-dirs:
+	@echo "Restoring config directories..."
+	@if [ -d $(BACKUPDIR)/config/fish ]; then \
+		mkdir -p $(HOME)/.config; \
+		cp -rp $(BACKUPDIR)/config/fish $(HOME)/.config/; \
+	fi
+
 # 削除
-remove: restore $(foreach f, $(DOT_FILES), remove-dot-files-$(f)) remove-config-files
+remove: restore $(foreach f, $(DOT_FILES), remove-dot-files-$(f)) remove-config-files remove-config-dirs
 
 remove-config-files:
 	@echo "Removing config files..."
@@ -125,13 +131,21 @@ remove-config-files:
 		rm -f $(HOME)/.config/mise/config.toml; \
 	fi
 
+remove-config-dirs:
+	@echo "Removing config directories..."
+	@rm -rf $(HOME)/.config/fish
+
 # クリーン
-clean: $(foreach f, $(DOT_FILES), unlink-dot-file-$(f)) clean-config-files
+clean: $(foreach f, $(DOT_FILES), unlink-dot-file-$(f)) clean-config-files clean-config-dirs
 
 clean-config-files:
 	@echo "Cleaning config files..."
 	@rm -f $(HOME)/.config/starship.toml
 	@rm -f $(HOME)/.config/mise/config.toml
+
+clean-config-dirs:
+	@echo "Cleaning config directories..."
+	@rm -rf $(HOME)/.config/fish
 
 # ========================================
 # 依存関係
@@ -152,6 +166,26 @@ make-backup-dir:
 link-dot-file-%:
 	@echo "Create Symlink $* => $(HOME)/.$*"
 	@ln -snf $(CURRENTDIR)/$* $(HOME)/.$*
+
+link-config-file-%:
+	@echo "Create Symlink config/$(subst __,/,$*) => $(HOME)/.config/$(subst __,/,$*)"
+	@mkdir -p $(dir $(HOME)/.config/$(subst __,/,$*))
+	@if [ -e $(HOME)/.config/$(subst __,/,$*) ] && [ ! -L $(HOME)/.config/$(subst __,/,$*) ]; then \
+		echo "Error: $(HOME)/.config/$(subst __,/,$*) already exists and is not a symlink."; \
+		echo "Move it aside manually, then rerun make config."; \
+		exit 1; \
+	fi
+	@ln -snf $(CURRENTDIR)/config/$(subst __,/,$*) $(HOME)/.config/$(subst __,/,$*)
+
+link-config-dir-%:
+	@echo "Create Symlink config/$(subst __,/,$*) => $(HOME)/.config/$(subst __,/,$*)"
+	@mkdir -p $(dir $(HOME)/.config/$(subst __,/,$*))
+	@if [ -e $(HOME)/.config/$(subst __,/,$*) ] && [ ! -L $(HOME)/.config/$(subst __,/,$*) ]; then \
+		echo "Error: $(HOME)/.config/$(subst __,/,$*) already exists and is not a symlink."; \
+		echo "Move it aside manually, then rerun make config."; \
+		exit 1; \
+	fi
+	@ln -snf $(CURRENTDIR)/config/$(subst __,/,$*) $(HOME)/.config/$(subst __,/,$*)
 
 unlink-dot-file-%:
 	@echo "Remove Symlink $(HOME)/.$*"
@@ -191,7 +225,7 @@ help:
 	@echo "  make vim       - Vim configuration (includes plugins)"
 	@echo "  make tmux      - Tmux configuration"
 	@echo "  make git       - Git configuration"
-	@echo "  make config    - Config files (starship, mise)"
+	@echo "  make config    - Config files (starship, mise, fish)"
 	@echo ""
 	@echo "Environment setup:"
 	@echo "  make starship     - Download starship binaries"
@@ -203,6 +237,7 @@ help:
 	@echo "  make remove  - Remove all configurations"
 	@echo "  make clean   - Clean symlinks only"
 
-.PHONY: all install prepare zsh vim gvim tmux git dircolors config starship-config mise-config
+.PHONY: all install prepare zsh vim gvim tmux git dircolors config
 .PHONY: starship tmux-plugins backup restore remove clean backup-config-files restore-config-files
+.PHONY: backup-config-dirs restore-config-dirs remove-config-dirs clean-config-dirs
 .PHONY: remove-config-files clean-config-files vim-dependency make-backup-dir help
