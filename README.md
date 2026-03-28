@@ -1,6 +1,6 @@
 DOTFILES
 ========
-vim, zsh, fish, tmuxの設定ファイルをまとめた。
+vim, zsh, fish, tmux, Ghosttyの設定ファイルをまとめた。
 
 ## Installation
 
@@ -24,6 +24,11 @@ brew bundle install
 ```sh
 mise install
 ```
+
+#### 3. Ghostty
+
+`make config` に `Ghostty` の設定も含まれます。
+Laptop では `Ghostty` を使い、Linux の踏み台 VM では引き続き `tmux` を使う想定です。
 
 ### Fish migration
 

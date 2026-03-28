@@ -8,7 +8,7 @@
 # 設定ファイル定義
 DOT_FILES = zshrc zsh vimrc vim tmux.conf tmux dir_colors gitconfig gitignore gvimrc
 CONFIG_FILES = config/starship.toml $(CONFIG_FILES_$(OS))
-CONFIG_FILES_Darwin = config/mise/config.toml
+CONFIG_FILES_Darwin = config/mise/config.toml config/ghostty/config
 CONFIG_DIRS = config/fish
 CONFIG_FILE_TARGETS = $(foreach f, $(patsubst config/%,%,$(CONFIG_FILES)), link-config-file-$(subst /,__,$(f)))
 CONFIG_DIR_TARGETS = $(foreach d, $(patsubst config/%,%,$(CONFIG_DIRS)), link-config-dir-$(subst /,__,$(d)))

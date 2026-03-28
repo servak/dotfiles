@@ -1,0 +1,92 @@
+# Ghostty is for the macOS laptop workflow. tmux remains for remote Linux hosts.
+macos-option-as-alt = true
+command = /opt/homebrew/bin/fish
+split-inherit-working-directory = true
+window-save-state = always
+
+# Neutral dark split styling tuned for dir_colors output.
+# Active pane sits around RGB(43, 43, 43), inactive panes around RGB(24, 24, 24).
+background = 2b2b2b
+split-divider-color = 4a4a4a
+unfocused-split-opacity = 0.55
+unfocused-split-fill = 181818
+
+# Ghostty leader on the laptop: Ctrl-t
+keybind = ctrl+t=activate_key_table:leader
+
+# Leader table. Most commands exit immediately; resize stays active for repeats.
+keybind = leader/
+keybind = leader/escape=deactivate_key_table
+keybind = leader/catch_all=deactivate_key_table
+keybind = leader/ctrl+t=text:\x14
+keybind = chain=deactivate_key_table
+
+# Reload / config helpers
+keybind = leader/r=reload_config
+keybind = chain=deactivate_key_table
+keybind = leader/e=open_config
+keybind = chain=deactivate_key_table
+
+# Tabs
+keybind = leader/c=new_tab
+keybind = chain=deactivate_key_table
+keybind = leader/n=next_tab
+keybind = chain=deactivate_key_table
+keybind = leader/p=previous_tab
+keybind = chain=deactivate_key_table
+keybind = leader/1=goto_tab:1
+keybind = chain=deactivate_key_table
+keybind = leader/2=goto_tab:2
+keybind = chain=deactivate_key_table
+keybind = leader/3=goto_tab:3
+keybind = chain=deactivate_key_table
+keybind = leader/4=goto_tab:4
+keybind = chain=deactivate_key_table
+keybind = leader/5=goto_tab:5
+keybind = chain=deactivate_key_table
+keybind = leader/6=goto_tab:6
+keybind = chain=deactivate_key_table
+keybind = leader/7=goto_tab:7
+keybind = chain=deactivate_key_table
+keybind = leader/8=goto_tab:8
+keybind = chain=deactivate_key_table
+keybind = leader/9=goto_tab:9
+keybind = chain=deactivate_key_table
+
+# Splits
+keybind = leader/s=new_split:down
+keybind = chain=deactivate_key_table
+keybind = leader/v=new_split:right
+keybind = chain=deactivate_key_table
+keybind = leader/z=toggle_split_zoom
+keybind = chain=deactivate_key_table
+keybind = leader/equal=equalize_splits
+keybind = chain=deactivate_key_table
+keybind = leader/x=close_surface
+keybind = chain=deactivate_key_table
+
+# Split navigation
+keybind = leader/h=goto_split:left
+keybind = chain=deactivate_key_table
+keybind = leader/j=goto_split:down
+keybind = chain=deactivate_key_table
+keybind = leader/k=goto_split:up
+keybind = chain=deactivate_key_table
+keybind = leader/l=goto_split:right
+keybind = chain=deactivate_key_table
+
+# Split resize; stays in the leader table so Ctrl-h/j/k/l can repeat.
+keybind = leader/ctrl+h=resize_split:left,10
+keybind = leader/ctrl+j=resize_split:down,5
+keybind = leader/ctrl+k=resize_split:up,5
+keybind = leader/ctrl+l=resize_split:right,10
+
+# Handy replacements for a few tmux workflows
+keybind = leader/left_bracket=jump_to_prompt:-1
+keybind = chain=deactivate_key_table
+keybind = leader/right_bracket=jump_to_prompt:1
+keybind = chain=deactivate_key_table
+keybind = leader/P=paste_from_clipboard
+keybind = chain=deactivate_key_table
+keybind = leader/W=write_scrollback_file:open
+keybind = chain=deactivate_key_table
