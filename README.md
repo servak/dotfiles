@@ -28,6 +28,7 @@ mise install
 ### Fish migration
 
 `zsh` の設定はそのまま残したまま、`fish` の設定も追加できます。
+`fish` は macOS のローカル環境で使う前提で、Linux サーバーでは `zsh` を継続利用します。
 
 ```sh
 make fish
@@ -45,7 +46,7 @@ chsh -s $(which fish)
 - 基本CLI: `git`, `jq`, `fzf`, `ripgrep`, `tmux` 等
 - 開発支援: `docker-compose`, `lima`, `podman` 等  
 - 言語固有標準ツール: `uv` (Python), `mise`
-- Shell支援: `fish`, `zoxide`, `atuin`
+- Shell支援: `fish`, `zoxide`
 
 **mise（プロジェクト別バージョン管理）**: プロジェクトごとにバージョンが重要なツール
 - 言語ランタイム: `go`, `node`

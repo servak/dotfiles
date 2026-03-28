@@ -1,5 +1,4 @@
 brew "bat"
-brew "atuin"
 brew "cmake"
 brew "coreutils"
 brew "eza"

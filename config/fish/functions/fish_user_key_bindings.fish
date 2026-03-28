@@ -10,7 +10,6 @@ function fish_user_key_bindings
     bind \e\[Z history-pager
 
     bind \cj __smart_enter
-    bind \x00 __cmdsearch
     bind \eg __ghq_cd
     bind \ev __vim_file_search
     bind \es __multi_ssh

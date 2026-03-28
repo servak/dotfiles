@@ -21,7 +21,6 @@ case Darwin
     alias sha256sum='gsha256sum'
     alias gls='gls --color'
     alias sed='gsed'
-    alias k='kubectl'
     alias ghp='gh pr create --web'
     alias ls='gls -F'
     alias ll='ls -ltrF'
@@ -47,14 +46,6 @@ end
 
 if command -sq zoxide
     zoxide init fish | source
-end
-
-if command -sq atuin
-    atuin init fish | source
-end
-
-if command -sq fzf
-    fzf --fish | source
 end
 
 alias du='du -h'
