@@ -3,7 +3,7 @@ function __ghq_cd
         return 1
     end
 
-    set -l selected_dir (ghq list --full-path | __dotfiles_fzf_select (commandline))
+    set -l selected_dir (ghq list --full-path | fzf --query (commandline))
     if test -n "$selected_dir"
         cd "$selected_dir"
         commandline --replace ''
