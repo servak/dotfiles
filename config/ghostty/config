@@ -1,6 +1,9 @@
 # Ghostty is for the macOS laptop workflow. tmux remains for remote Linux hosts.
 macos-option-as-alt = true
 command = /opt/homebrew/bin/fish
+font-family = "SauceCodePro Nerd Font Mono"
+font-size = 14
+font-thicken = true
 split-inherit-working-directory = true
 window-save-state = always
 

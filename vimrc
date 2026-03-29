@@ -23,7 +23,9 @@ set timeoutlen=3500
 set modifiable
 " set clipboard+=unnamed
 set splitbelow                   " newした時に下に開く
+set splitright                   " vertical splitは右に開く
 set isk+=-                       " -もwordとして扱う。
+set signcolumn=yes               " diagnosticsやgit signでレイアウトを安定させる
 
 " プラグイン読み込み {{{1
 filetype plugin indent off
@@ -140,8 +142,8 @@ set cursorline
 " カレントウィンドウにのみ罫線を引く
 augroup cch
   autocmd! cch
-  autocmd WinLeave * set nocursorline
-  autocmd WinEnter,BufRead * set cursorline
+  autocmd WinLeave * setlocal nocursorline
+  autocmd WinEnter,BufRead * setlocal cursorline
 augroup END
 
 hi clear CursorLine
@@ -214,6 +216,7 @@ set virtualedit+=block
 
 "ビジュアルモード時vで行末まで選択
 vnoremap v $h
+vmap <Leader>y "+y
 vnoremap <leader>64 y:echo system('base64 --decode', @")<CR>
 
 " CTRL-hjklでウィンドウ移動
@@ -223,16 +226,20 @@ nnoremap <C-l> <C-w>l
 nnoremap <C-h> <C-w>h
 
 " ターミナルタイプによるカラー設定
-if &term =~ "xterm-256color" || "screen-256color"
+if exists('+termguicolors')
+  set termguicolors
+endif
+
+if &term =~# 'xterm-256color\|screen-256color'
   " 256色
   set t_Co=256
   set t_Sf=[3%dm
   set t_Sb=[4%dm
-elseif &term =~ "xterm-debian" || &term =~ "xterm-xfree86"
+elseif &term =~# 'xterm-debian\|xterm-xfree86'
   set t_Co=16
   set t_Sf=[3%dm
   set t_Sb=[4%dm
-elseif &term =~ "xterm-color"
+elseif &term =~# 'xterm-color'
   set t_Co=8
   set t_Sf=[3%dm
   set t_Sb=[4%dm
@@ -279,9 +286,14 @@ fun! StripTrailingWhitespace()
     if &ft == ''
         return
     endif
-    %s/\s\+$//e
+    let l:view = winsaveview()
+    silent! keeppatterns %s/\s\+$//e
+    call winrestview(l:view)
 endfun
-autocmd BufWritePre * call StripTrailingWhitespace()
+augroup trim_trailing_whitespace
+  autocmd!
+  autocmd BufWritePre * call StripTrailingWhitespace()
+augroup END
 
 " foldは各FiltTypeにお任せる
 set foldmethod=marker
@@ -305,13 +317,13 @@ set encoding=utf-8    " デフォルトエンコーディング
 
 " 文字コード認識はbanyan/recognize_charcode.vimへ
 
-autocmd FileType svn :set fileencoding=utf-8
-autocmd FileType js :set fileencoding=utf-8
-autocmd FileType css :set fileencoding=utf-8
-autocmd FileType html :set fileencoding=utf-8
-autocmd FileType xml :set fileencoding=utf-8
-autocmd FileType java :set fileencoding=utf-8
-autocmd FileType scala :set fileencoding=utf-8
+autocmd FileType svn setlocal fileencoding=utf-8
+autocmd FileType js setlocal fileencoding=utf-8
+autocmd FileType css setlocal fileencoding=utf-8
+autocmd FileType html setlocal fileencoding=utf-8
+autocmd FileType xml setlocal fileencoding=utf-8
+autocmd FileType java setlocal fileencoding=utf-8
+autocmd FileType scala setlocal fileencoding=utf-8
 
 " ワイルドカードで表示するときに優先度を低くする拡張子
 set suffixes=.bak,~,.swp,.o,.info,.aux,.log,.dvi,.bbl,.blg,.brf,.cb,.ind,.idx,.ilg,.inx,.out,.toc
@@ -448,15 +460,87 @@ let g:lsp_diagnostics_echo_cursor = 1
 let g:asyncomplete_auto_popup = 1
 let g:asyncomplete_auto_completeopt = 0
 let g:asyncomplete_popup_delay = 200
-set completeopt=menuone,noinsert,noselect,preview
+set completeopt=menuone,noinsert,noselect
 
-nmap gd :LspDefinition<CR>
-nmap gi :LspImplementation<CR>
-nmap gr :LspReferences<CR>
-nmap gn :LspNextError<CR>
-nmap gp :LspPreviousError<CR>
+function! s:find_python_venv() abort
+  let l:venv_dir = finddir('.venv', expand('%:p:h') . ';')
+  if empty(l:venv_dir)
+    return ''
+  endif
+  return fnamemodify(l:venv_dir, ':p')
+endfunction
+
+function! s:configure_pylsp_environment() abort
+  if &filetype !=# 'python'
+    return
+  endif
+
+  let l:plugins = g:lsp_settings['pylsp-all']['workspace_config']['pylsp']['plugins']
+  let l:venv_dir = s:find_python_venv()
+
+  if empty(l:venv_dir)
+    if has_key(l:plugins, 'jedi')
+      call remove(l:plugins, 'jedi')
+    endif
+    return
+  endif
+
+  let l:plugins['jedi'] = {
+  \ 'environment': l:venv_dir,
+  \ 'env_vars': {
+  \   'VIRTUAL_ENV': l:venv_dir,
+  \ },
+  \}
+endfunction
+
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  if exists('+tagfunc')
+    setlocal tagfunc=lsp#tagfunc
+  endif
+  if exists('+formatexpr')
+    setlocal formatexpr=lsp#ui#vim#formatexpr()
+  endif
+
+  nmap <silent><buffer> gd <plug>(lsp-definition)
+  nmap <silent><buffer> gi <plug>(lsp-implementation)
+  nmap <silent><buffer> gr <plug>(lsp-references)
+  nmap <silent><buffer> gt <plug>(lsp-type-definition)
+  nmap <silent><buffer> K <plug>(lsp-hover)
+  nmap <silent><buffer> [g <plug>(lsp-previous-diagnostic)
+  nmap <silent><buffer> ]g <plug>(lsp-next-diagnostic)
+  nmap <silent><buffer> [e <plug>(lsp-previous-error)
+  nmap <silent><buffer> ]e <plug>(lsp-next-error)
+  nmap <silent><buffer> <Leader>rn <plug>(lsp-rename)
+  nmap <silent><buffer> <Leader>ca <plug>(lsp-code-action)
+  nmap <silent><buffer> <Leader>lf <plug>(lsp-document-format)
+  nmap <silent><buffer> <Leader>ds <plug>(lsp-document-symbol)
+  nmap <silent><buffer> <Leader>ws <plug>(lsp-workspace-symbol-search)
+  xmap <silent><buffer> <Leader>lf <plug>(lsp-document-format)
+endfunction
+
+augroup vim_lsp
+  autocmd!
+  autocmd FileType python call s:configure_pylsp_environment()
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
+let g:lsp_settings_filetype_go = ['gopls']
+let g:lsp_settings_filetype_python = ['pylsp-all']
+let g:lsp_settings_filetype_javascript = ['typescript-language-server']
+let g:lsp_settings_filetype_javascriptreact = ['typescript-language-server']
+let g:lsp_settings_filetype_typescript = ['typescript-language-server']
+let g:lsp_settings_filetype_typescriptreact = ['typescript-language-server']
 
 let g:lsp_settings = {
+\   'gopls': {
+\     'workspace_config': {
+\       'gopls': {
+\         'gofumpt': v:true,
+\         'staticcheck': v:true,
+\       },
+\     },
+\   },
 \   'pylsp-all': {
 \     'workspace_config': {
 \       'pylsp': {
@@ -472,10 +556,33 @@ let g:lsp_settings = {
 \       }
 \     }
 \   },
-\   'rust-analyzer': {'disabled': v:false},
+\   'typescript-language-server': {
+\     'workspace_config': {
+\       'typescript': {
+\         'inlayHints': {
+\           'includeInlayParameterNameHints': 'all',
+\           'includeInlayParameterNameHintsWhenArgumentMatchesName': v:false,
+\           'includeInlayFunctionParameterTypeHints': v:true,
+\           'includeInlayVariableTypeHints': v:true,
+\           'includeInlayPropertyDeclarationTypeHints': v:true,
+\           'includeInlayFunctionLikeReturnTypeHints': v:true,
+\           'includeInlayEnumMemberValueHints': v:true,
+\         },
+\       },
+\       'javascript': {
+\         'inlayHints': {
+\           'includeInlayParameterNameHints': 'all',
+\           'includeInlayParameterNameHintsWhenArgumentMatchesName': v:false,
+\           'includeInlayFunctionParameterTypeHints': v:true,
+\           'includeInlayVariableTypeHints': v:true,
+\           'includeInlayPropertyDeclarationTypeHints': v:true,
+\           'includeInlayFunctionLikeReturnTypeHints': v:true,
+\           'includeInlayEnumMemberValueHints': v:true,
+\         },
+\       },
+\     },
+\   },
 \}
-
-"autocmd FileType go nmap gd :LspDefinition<CR>
 
 "------------------------------------
 " vsnip
