@@ -27,15 +27,6 @@ case Darwin
     alias la='ll -a'
     alias tree='eza --tree --color=auto'
     alias exa='eza --group-directories-first --color=auto'
-
-    if test -f ~/.dir_colors
-        if command -sq gdircolors
-            set -l ls_colors (gdircolors -b ~/.dir_colors | string replace -rf ".*LS_COLORS='([^']+)'.*" '$1')
-            if test -n "$ls_colors"
-                set -gx LS_COLORS $ls_colors
-            end
-        end
-    end
 case Linux
     fish_add_path -g ~/.zsh/bin/Linux/(uname -m)
 end
@@ -54,7 +45,6 @@ alias su='su -l'
 alias vi='vim'
 alias em='emacsclient -c'
 alias v='vim'
-alias be='bundle exec'
 alias less='less -gj10R'
 
 abbr --erase g >/dev/null 2>&1

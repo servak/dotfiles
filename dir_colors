@@ -51,11 +51,13 @@ TERM screen-w
 TERM screen.linux
 TERM tmux-256color
 TERM vt100
+TERM ghostty
 TERM xterm
 TERM xterm-16color
 TERM xterm-256color
 TERM xterm-88color
 TERM xterm-color
+TERM xterm-ghostty
 TERM xterm-debian
 
 # Below are the color init strings for the basic file types. A color init

@@ -15,6 +15,7 @@ export EDITOR=vim
 
 # 履歴設定読み込み
 source ~/.zsh/modules/history.zsh
+source ~/.zsh/ls_colors.zsh
 # 色設定
 autoload -Uz colors && colors
 zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}

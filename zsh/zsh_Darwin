@@ -5,9 +5,6 @@ alias tac='tail -r'
 
 alias sha256sum='gsha256sum'
 alias gls='gls --color'
-if [ -f ~/.dir_colors ]; then
-    eval `gdircolors -b ~/.dir_colors`
-fi
 
 alias sed="gsed"
 alias k="kubectl"
