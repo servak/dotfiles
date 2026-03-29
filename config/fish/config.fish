@@ -39,6 +39,17 @@ if command -sq zoxide
     zoxide init fish | source
 end
 
+# Completion pager colors: make entries, descriptions, and selection easier to distinguish.
+set -g fish_pager_color_completion brwhite
+set -g fish_pager_color_description brblack --italics
+set -g fish_pager_color_prefix --bold --underline
+set -g fish_pager_color_selected_background --background=brcyan
+set -g fish_pager_color_selected_completion black --background=brcyan
+set -g fish_pager_color_selected_description brblack --background=brcyan
+set -g fish_pager_color_selected_prefix black --bold --underline --background=brcyan
+set -g fish_pager_color_secondary_completion brblack
+set -g fish_pager_color_secondary_description brblack --italics
+
 alias du='du -h'
 alias df='df -h'
 alias su='su -l'
