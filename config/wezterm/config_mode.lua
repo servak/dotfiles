@@ -27,6 +27,8 @@ function module.apply_to_config(config)
 		{ key = "Escape", action = "PopKeyTable" },
 		{ key = "q", action = "PopKeyTable" },
 		{ key = "c", mods = "CTRL", action = "PopKeyTable" },
+		{ key = "n", action = act.ActivateTabRelative(1) },
+		{ key = "p", action = act.ActivateTabRelative(-1) },
 		{ key = "h", action = resize_selected("Left", 1) },
 		{ key = "j", action = resize_selected("Down", 1) },
 		{ key = "k", action = resize_selected("Up", 1) },
