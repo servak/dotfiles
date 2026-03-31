@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 
 local module = {}
+local transient_messages = {}
 
 local STATUS_STYLES = {
 	leader = { label = "LEADER", color = "#d7ba7d" },
@@ -8,7 +9,15 @@ local STATUS_STYLES = {
 	config_mode = { label = "CONFIG", color = "#ef476f" },
 	zoom = { label = "ZOOM", color = "#80ebdf" },
 	workspace = { color = "#6a9955" },
+	notice = { color = "#80ebdf" },
 }
+
+function module.flash(window, message, ttl_seconds)
+	transient_messages[window:window_id()] = {
+		message = message,
+		expires_at = os.time() + (ttl_seconds or 2),
+	}
+end
 
 function module.apply_to_config(config)
 	config.status_update_interval = 1000
@@ -22,6 +31,12 @@ function module.apply_to_config(config)
 		local flags = {}
 		local has_left = false
 		local has_right = false
+		local notice = transient_messages[window:window_id()]
+
+		if notice and notice.expires_at <= os.time() then
+			transient_messages[window:window_id()] = nil
+			notice = nil
+		end
 
 		if workspace ~= "default" then
 			has_left = true
@@ -48,16 +63,22 @@ function module.apply_to_config(config)
 			end
 		end
 
-		if #flags == 0 and not has_left then
+		if #flags == 0 and not has_left and not notice then
 			window:set_left_status("")
 			window:set_right_status("")
 			return
 		end
 
 		for _, flag in ipairs(flags) do
-			has_right = true
 			table.insert(right_cells, { Foreground = { Color = flag.color } })
 			table.insert(right_cells, { Text = flag.label .. " " })
+			has_right = true
+		end
+
+		if notice then
+			table.insert(right_cells, { Foreground = { Color = STATUS_STYLES.notice.color } })
+			table.insert(right_cells, { Text = notice.message .. " " })
+			has_right = true
 		end
 
 		if has_left then

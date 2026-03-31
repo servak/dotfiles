@@ -3,6 +3,29 @@ local act = wezterm.action
 
 local module = {}
 
+local function notify(window, message)
+	require("statusbar").flash(window, message, 2)
+end
+
+local function copy_last_command_block()
+	return wezterm.action_callback(function(window, pane)
+		window:perform_action(act.ActivateCopyMode, pane)
+		window:perform_action(act.CopyMode({ MoveBackwardZoneOfType = "Input" }), pane)
+		window:perform_action(act.CopyMode({ SetSelectionMode = "Cell" }), pane)
+		window:perform_action(act.CopyMode({ MoveForwardZoneOfType = "Prompt" }), pane)
+		window:perform_action(act.CopyMode("MoveUp"), pane)
+		window:perform_action(act.CopyMode("MoveToEndOfLineContent"), pane)
+		window:perform_action(
+			act.Multiple({
+				{ CopyTo = "ClipboardAndPrimarySelection" },
+				{ Multiple = { "ScrollToBottom", { CopyMode = "Close" } } },
+			}),
+			pane
+		)
+		notify(window, "Copied last command with output")
+	end)
+end
+
 function module.apply_to_config(config)
 	config.leader = { key = "t", mods = "CTRL", timeout_milliseconds = 1000 }
 	config.disable_default_key_bindings = true
@@ -41,7 +64,20 @@ function module.apply_to_config(config)
 		{ key = "j", mods = "LEADER", action = act.ActivatePaneDirection("Down") },
 		{ key = "k", mods = "LEADER", action = act.ActivatePaneDirection("Up") },
 		{ key = "l", mods = "LEADER", action = act.ActivatePaneDirection("Right") },
-		{ key = "y", mods = "LEADER", action = act.ActivateCopyMode },
+		{ key = "[", mods = "LEADER", action = act.ActivateCopyMode },
+		{ key = "[", mods = "ALT", action = act.ScrollToPrompt(-1) },
+		{ key = "]", mods = "ALT", action = act.ScrollToPrompt(1) },
+		{ key = "y", mods = "LEADER", action = copy_last_command_block() },
+		{
+			key = "X",
+			mods = "CTRL",
+			action = act.Multiple({
+				act.ActivateCopyMode,
+				act.CopyMode("ClearPattern"),
+				act.CopyMode("ClearSelectionMode"),
+				act.CopyMode("MoveToViewportMiddle"),
+			}),
+		},
 		{ key = "m", mods = "LEADER", action = act.ActivateKeyTable({ name = "config_mode", one_shot = false }) },
 		{ key = "P", mods = "LEADER|SHIFT", action = act.PasteFrom("Clipboard") },
 		{ key = " ", mods = "SUPER", action = act.QuickSelect },

@@ -4,7 +4,7 @@ local module = {}
 
 function module.apply_to_config(config)
 	config.default_prog = { "/opt/homebrew/bin/fish", "-l" }
-	config.term = "wezterm"
+	config.term = "xterm-256color"
 	config.font = wezterm.font("SauceCodePro Nerd Font Mono")
 	config.font_size = 14
 	config.window_background_opacity = 1.0
@@ -26,6 +26,7 @@ function module.apply_to_config(config)
 
 	config.colors = {
 		background = "#2b2b2b",
+		foreground = "#d0d0d0",
 		split = "#4a4a4a",
 		cursor_bg = "#80ebdf",
 		cursor_fg = "#000000",
