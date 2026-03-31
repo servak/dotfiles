@@ -52,6 +52,7 @@ TERM screen.linux
 TERM tmux-256color
 TERM vt100
 TERM ghostty
+TERM wezterm
 TERM xterm
 TERM xterm-16color
 TERM xterm-256color

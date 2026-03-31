@@ -230,7 +230,7 @@ if exists('+termguicolors')
   set termguicolors
 endif
 
-if &term =~# 'xterm-256color\|screen-256color'
+if &term =~# 'xterm-256color\|screen-256color\|wezterm'
   " 256色
   set t_Co=256
   set t_Sf=[3%dm
