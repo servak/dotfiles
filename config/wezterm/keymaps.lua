@@ -47,7 +47,7 @@ end
 
 function module.apply_to_config(config)
 	config.leader = { key = "t", mods = "CTRL", timeout_milliseconds = 1000 }
-	config.disable_default_key_bindings = true
+	config.disable_default_key_bindings = false
 
 	config.keys = {
 		{ key = "t", mods = "LEADER|CTRL", action = act.SendKey({ key = "t", mods = "CTRL" }) },
@@ -117,7 +117,6 @@ function module.apply_to_config(config)
 				timeout_milliseconds = 2000,
 			}),
 		},
-		{ key = "P", mods = "LEADER|SHIFT", action = act.PasteFrom("Clipboard") },
 	}
 end
 
