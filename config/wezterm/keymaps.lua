@@ -26,13 +26,31 @@ local function copy_last_command_block()
 	end)
 end
 
+local function rename_tab()
+	return act.PromptInputLine({
+		description = "Rename tab",
+		action = wezterm.action_callback(function(window, _, line)
+			if line == nil then
+				return
+			end
+
+			window:active_tab():set_title(line)
+			if line == "" then
+				notify(window, "Reset tab title")
+				return
+			end
+
+			notify(window, "Renamed tab")
+		end),
+	})
+end
+
 function module.apply_to_config(config)
 	config.leader = { key = "t", mods = "CTRL", timeout_milliseconds = 1000 }
 	config.disable_default_key_bindings = true
 
 	config.keys = {
 		{ key = "t", mods = "LEADER|CTRL", action = act.SendKey({ key = "t", mods = "CTRL" }) },
-		{ key = "r", mods = "LEADER", action = act.ReloadConfiguration },
 		{
 			key = "e",
 			mods = "LEADER",
@@ -45,6 +63,7 @@ function module.apply_to_config(config)
 			}),
 		},
 		{ key = "c", mods = "LEADER", action = act.SpawnTab("CurrentPaneDomain") },
+		{ key = "r", mods = "LEADER", action = rename_tab() },
 		{ key = "n", mods = "LEADER", action = act.ActivateTabRelative(1) },
 		{ key = "p", mods = "LEADER", action = act.ActivateTabRelative(-1) },
 		{ key = "1", mods = "LEADER", action = act.ActivateTab(0) },

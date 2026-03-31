@@ -13,6 +13,11 @@ function module.apply_to_config(config)
 	config.enable_scroll_bar = false
 	config.use_fancy_tab_bar = false
 	config.hide_tab_bar_if_only_one_tab = false
+	config.tab_bar_at_bottom = true
+	config.inactive_pane_hsb = {
+		saturation = 0.75,
+		brightness = 0.60,
+	}
 	config.adjust_window_size_when_changing_font_size = false
 	config.send_composed_key_when_left_alt_is_pressed = true
 	config.send_composed_key_when_right_alt_is_pressed = false
@@ -27,7 +32,7 @@ function module.apply_to_config(config)
 	config.colors = {
 		background = "#2b2b2b",
 		foreground = "#d0d0d0",
-		split = "#4a4a4a",
+		split = "#6a6a6a",
 		cursor_bg = "#80ebdf",
 		cursor_fg = "#000000",
 		cursor_border = "#80ebdf",

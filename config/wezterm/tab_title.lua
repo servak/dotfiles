@@ -1,6 +1,8 @@
 local wezterm = require("wezterm")
 
 local module = {}
+local TAB_PADDING = 2
+local TAB_GAP = 1
 
 local function basename(path)
 	return string.gsub(path or "", "(.*[/\\])(.*)", "%2")
@@ -65,12 +67,16 @@ function module.apply_to_config(_)
 
 		local fg = tab.is_active and "#111111" or "#a0a0a0"
 		local bg = tab.is_active and "#80ebdf" or "#181818"
+		local bar_bg = "#181818"
+		local reserved_width = (TAB_PADDING * 2) + TAB_GAP
 
 		return {
 			{ Background = { Color = bg } },
 			{ Foreground = { Color = fg } },
 			{ Attribute = { Intensity = tab.is_active and "Bold" or "Normal" } },
-			{ Text = " " .. zoom .. wezterm.truncate_right(title, max_width - 2) .. " " },
+			{ Text = string.rep(" ", TAB_PADDING) .. zoom .. wezterm.truncate_right(title, math.max(max_width - reserved_width, 1)) .. string.rep(" ", TAB_PADDING) },
+			{ Background = { Color = bar_bg } },
+			{ Text = string.rep(" ", TAB_GAP) },
 		}
 	end)
 end
