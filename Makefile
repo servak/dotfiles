@@ -9,7 +9,7 @@
 DOT_FILES = zshrc zsh vimrc vim tmux.conf tmux dir_colors gitconfig gitignore gvimrc
 CONFIG_FILES = config/starship.toml $(CONFIG_FILES_$(OS))
 CONFIG_FILES_Darwin = config/mise/config.toml config/ghostty/config
-CONFIG_DIRS = config/fish
+CONFIG_DIRS = config/fish config/wezterm
 CONFIG_FILE_TARGETS = $(foreach f, $(patsubst config/%,%,$(CONFIG_FILES)), link-config-file-$(subst /,__,$(f)))
 CONFIG_DIR_TARGETS = $(foreach d, $(patsubst config/%,%,$(CONFIG_DIRS)), link-config-dir-$(subst /,__,$(d)))
 DIRCOLORS_ZSH_FILE = zsh/ls_colors.zsh
@@ -105,6 +105,14 @@ backup-config-files:
 		mkdir -p $(BACKUPDIR)/config/mise; \
 		cp $(HOME)/.config/mise/config.toml $(BACKUPDIR)/config/mise/; \
 	fi
+	@if [ -f $(HOME)/.config/ghostty/config -a ! -L $(HOME)/.config/ghostty/config ]; then \
+		mkdir -p $(BACKUPDIR)/config/ghostty; \
+		cp $(HOME)/.config/ghostty/config $(BACKUPDIR)/config/ghostty/; \
+	fi
+	@if [ -d $(HOME)/.config/wezterm -a ! -L $(HOME)/.config/wezterm ]; then \
+		mkdir -p $(BACKUPDIR)/config; \
+		cp -rp $(HOME)/.config/wezterm $(BACKUPDIR)/config/; \
+	fi
 
 backup-config-dirs:
 	@echo "Backing up config directories..."
@@ -126,6 +134,14 @@ restore-config-files:
 		mkdir -p $(HOME)/.config/mise; \
 		cp $(BACKUPDIR)/config/mise/config.toml $(HOME)/.config/mise/; \
 	fi
+	@if [ -f $(BACKUPDIR)/config/ghostty/config ]; then \
+		mkdir -p $(HOME)/.config/ghostty; \
+		cp $(BACKUPDIR)/config/ghostty/config $(HOME)/.config/ghostty/; \
+	fi
+	@if [ -d $(BACKUPDIR)/config/wezterm ]; then \
+		mkdir -p $(HOME)/.config; \
+		cp -rp $(BACKUPDIR)/config/wezterm $(HOME)/.config/; \
+	fi
 
 restore-config-dirs:
 	@echo "Restoring config directories..."
@@ -142,6 +158,8 @@ remove-config-files:
 	@rm -f $(HOME)/.config/starship.toml
 	@if [ "$(OS)" = "Darwin" ]; then \
 		rm -f $(HOME)/.config/mise/config.toml; \
+		rm -f $(HOME)/.config/ghostty/config; \
+		rm -rf $(HOME)/.config/wezterm; \
 	fi
 
 remove-config-dirs:
@@ -155,6 +173,8 @@ clean-config-files:
 	@echo "Cleaning config files..."
 	@rm -f $(HOME)/.config/starship.toml
 	@rm -f $(HOME)/.config/mise/config.toml
+	@rm -f $(HOME)/.config/ghostty/config
+	@rm -rf $(HOME)/.config/wezterm
 
 clean-config-dirs:
 	@echo "Cleaning config directories..."
