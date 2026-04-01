@@ -86,24 +86,24 @@ abbr --erase k >/dev/null 2>&1
 abbr --add --position command k kubectl
 
 abbr --erase T >/dev/null 2>&1
-abbr --add --global T '| tail'
+abbr --add --position anywhere T '| tail'
 abbr --erase H >/dev/null 2>&1
-abbr --add --global H '| head'
+abbr --add --position anywhere H '| head'
 abbr --erase L >/dev/null 2>&1
-abbr --add --global L '| less'
+abbr --add --position anywhere L '| less'
 abbr --erase G >/dev/null 2>&1
-abbr --add --global G '| grep'
+abbr --add --position anywhere G '| grep'
 abbr --erase W >/dev/null 2>&1
-abbr --add --global W '| wc -l'
+abbr --add --position anywhere W '| wc -l'
 abbr --erase V >/dev/null 2>&1
-abbr --add --global V '| vim -R -'
+abbr --add --position anywhere V '| vim -R -'
 abbr --erase C >/dev/null 2>&1
-abbr --add --global C '| pbcopy'
+abbr --add --position anywhere C '| pbcopy'
 
 if command -sq starship
     starship init fish | source
 end
 
-if test -f ~/.config/fish/local.fish
-    source ~/.config/fish/local.fish
+if test -f ~/.local.fish
+    source ~/.local.fish
 end
