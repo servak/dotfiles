@@ -13,8 +13,9 @@ function load_secrets --description 'Load environment secrets from 1Password tem
     end
 
     op inject -i $template | source
-    set -l inject_status $pipestatus[1]
-    set -l source_status $pipestatus[2]
+    set -l pipe_status $pipestatus
+    set -l inject_status $pipe_status[1]
+    set -l source_status $pipe_status[2]
 
     if test $inject_status -ne 0
         echo "load_secrets: op inject failed" >&2
