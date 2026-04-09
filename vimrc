@@ -37,7 +37,7 @@ Plug 'vim-scripts/xoria256.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'qpkorr/vim-bufkill'
-Plug 'scrooloose/nerdcommenter'
+Plug 'tpope/vim-commentary'
 " Plug 'honza/vim-snippets'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
@@ -629,16 +629,11 @@ smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-T
 
 
 "------------------------------------
-" NERD_commenter.vim
+" vim-commentary
 "------------------------------------
-" コメントの間にスペースを空ける
-let NERDSpaceDelims = 1
-let g:NERDCreateDefaultMappings = 0
-"<Leader>xでコメントをトグル(NERD_commenter.vim)
-nmap <Leader>c <Plug>NERDCommenterToggle
-vmap <Leader>c <Plug>NERDCommenterToggle
-""未対応ファイルタイプのエラーメッセージを表示しない
-let NERDShutUp=1
+nmap <Leader>c <Plug>Commentary
+xmap <Leader>c <Plug>Commentary
+omap <Leader>c <Plug>Commentary
 
 "------------------------------------
 " surround.vim
@@ -646,28 +641,6 @@ let NERDShutUp=1
 let g:surround_{char2nr('e')} = "begin \r end"
 let g:surround_{char2nr('d')} = "do \r end"
 let g:surround_{char2nr("-")} = ":\r"
-
-"------------------------------------
-" taglist.Vim
-"------------------------------------
-" 関数一覧
-"let Tlist_Ctags_Cmd = '/usr/local/bin/ctags' " ctagsのパス
-let Tlist_Show_One_File = 1               " 現在編集中のソースのタグしか表示しない
-let Tlist_Exit_OnlyWindow = 1             " taglistのウィンドーが最後のウィンドーならばVimを閉じる
-let Tlist_Use_Right_Window = 1            " 右側でtaglistのウィンドーを表示
-let Tlist_Enable_Fold_Column = 1          " 折りたたみ
-let Tlist_Auto_Open = 0                   " 自動表示
-let Tlist_Auto_Update = 1
-let Tlist_WinWidth = 30
-
-"------------------------------------
-" Syntastic
-"------------------------------------
-" エラー行をsignで表示する
-let g:syntastic_enable_signs = 1
-" 可能ならhighligt表示する
-let g:syntastic_enable_highlighting = 1
-"
 
 "------------------------------------
 " vim-airline
@@ -701,11 +674,6 @@ let test#python#runner = 'pytest'
 " let g:test#strategy = 'dispatch_background'
 " let g:test#strategy = 'neovim'
 nmap <Leader>t :TestSuite<CR>
-
-"------------------------------------
-" Tig
-"------------------------------------
-nmap <silent> <Space>g :TigOpenProjectRootDir<CR>
 
 "------------------------------------
 " Rust
