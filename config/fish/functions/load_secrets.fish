@@ -9,7 +9,7 @@ function load_secrets --description 'Load environment secrets from 1Password tem
         set name $argv[1]
     end
 
-    set -l template ~/.config/fish/secrets/$name.local.fish
+    set -l template ~/.config/fish/secrets/$name.fish
 
     if not test -f $template
         echo "load_secrets: template not found: $template" >&2
