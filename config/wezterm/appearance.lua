@@ -5,7 +5,13 @@ local module = {}
 function module.apply_to_config(config)
 	config.default_prog = { "/opt/homebrew/bin/fish", "-l" }
 	config.term = "xterm-256color"
-	config.font = wezterm.font("SauceCodePro Nerd Font Mono")
+	config.font = wezterm.font_with_fallback({
+		"SauceCodePro Nerd Font Mono",
+		"Hiragino Sans",
+		"JetBrains Mono",
+		"Noto Color Emoji",
+		"Symbols Nerd Font Mono",
+	})
 	config.font_size = 14
 	config.window_background_opacity = 1.0
 	config.initial_cols = 140
@@ -25,7 +31,13 @@ function module.apply_to_config(config)
 	config.window_close_confirmation = "NeverPrompt"
 
 	config.window_frame = {
-		font = wezterm.font("SauceCodePro Nerd Font Mono"),
+		font = wezterm.font_with_fallback({
+			"SauceCodePro Nerd Font Mono",
+			"Hiragino Sans",
+			"JetBrains Mono",
+			"Noto Color Emoji",
+			"Symbols Nerd Font Mono",
+		}),
 		font_size = 13,
 	}
 
