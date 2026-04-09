@@ -57,6 +57,10 @@ alias vi='vim'
 alias em='emacsclient -c'
 alias v='vim'
 alias less='less -gj10R'
+alias u='cd ..'
+alias uu='cd ../..'
+alias uuu='cd ../../..'
+alias uuuu='cd ../../../..'
 
 abbr --erase g >/dev/null 2>&1
 abbr --add --position command g git

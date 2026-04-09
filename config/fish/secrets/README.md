@@ -1,6 +1,7 @@
 # fish secrets templates
 
-`load_secrets` reads `~/.config/fish/secrets/current.local.fish` and runs it through `op inject`.
+`load_secrets` reads `~/.config/fish/secrets/current.local.fish` by default and runs it through `op inject`.
+You can also pass a template name such as `load_secrets home`, which reads `~/.config/fish/secrets/home.local.fish`.
 
 ## Usage
 
@@ -16,8 +17,14 @@ Then update the file with your own 1Password secret references.
 set -gx JIRA_API_TOKEN "{{ op://Personal/JIRA/credential }}"
 ```
 
-Load secrets:
+Load the default template:
 
 ```fish
 load_secrets
+```
+
+Load a named template:
+
+```fish
+load_secrets home
 ```
