@@ -31,8 +31,8 @@ set signcolumn=yes               " diagnosticsやgit signでレイアウトを�
 filetype plugin indent off
 call plug#begin('~/.vim/plugged')
 " must
-Plug 'bling/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+Plug 'itchyny/lightline.vim'
+Plug 'mengelbrecht/lightline-bufferline'
 Plug 'vim-scripts/xoria256.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
@@ -83,6 +83,7 @@ Plug 'github/copilot.vim'
 call plug#end()
 " ステータスライン {{{1
 set laststatus=2
+set showtabline=2
 set ruler
 
 " インデント {{{1
@@ -643,21 +644,29 @@ let g:surround_{char2nr('d')} = "do \r end"
 let g:surround_{char2nr("-")} = ":\r"
 
 "------------------------------------
-" vim-airline
+" lightline
 "------------------------------------
-if has('gui_running')
-  let g:airline_theme="laederon"
-else
-  let g:airline_theme="powerlineish"
-endif
+let g:lightline = {
+\ 'colorscheme': 'powerline',
+\ 'active': {
+\   'left': [ [ 'mode', 'paste' ], [ 'readonly', 'filename', 'modified' ] ],
+\   'right': [ [ 'lineinfo' ], [ 'percent' ], [ 'fileformat', 'fileencoding', 'filetype' ] ],
+\ },
+\ 'tabline': {
+\   'left': [ [ 'buffers' ] ],
+\   'right': [ [ 'close' ] ],
+\ },
+\ 'component_expand': {
+\   'buffers': 'lightline#bufferline#buffers',
+\ },
+\ 'component_type': {
+\   'buffers': 'tabsel',
+\ },
+\}
 
-if !exists('g:airline_symbols')
-  let g:airline_symbols = {}
-endif
-
-let g:airline_powerline_fonts = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tabline#left_alt_sep = '|'
+let g:lightline#bufferline#shorten_path = 1
+let g:lightline#bufferline#smart_path = 1
+let g:lightline#bufferline#unnamed = '[Scratch]'
 
 "------------------------------------
 " Fern
