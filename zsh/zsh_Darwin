@@ -7,8 +7,7 @@ alias sha256sum='gsha256sum'
 alias gls='gls --color'
 
 alias sed="gsed"
-alias k="kubectl"
-alias ghp="gh pr create --web"
+alias ghp="gh pr create --web"  # k=kubectl は zsh-abbr で定義
 export PYTHONDONTWRITEBYTECODE=1
 code () { open -n -b "com.microsoft.VSCode" --args $(realpath "$*") }
 export PATH=~/.zsh/bin/Darwin:$PATH

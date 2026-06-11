@@ -57,6 +57,10 @@ bindkey -M menuselect 'l' vi-forward-char
 #
 bindkey "\e[Z" reverse-menu-complete
 
+# abbreviations (zsh-abbr) は keymap 確定（bindkey -e）後に読み込む。
+# 先に読み込むと bindkey -e がスペースの展開バインドを reset してしまう。
+source ~/.zsh/modules/abbreviations.zsh
+
 # Alias設定 {{{1
 alias du='du -h'
 alias df='df -h'
@@ -65,7 +69,6 @@ alias su='su -l'
 alias vi='vim'
 alias em='emacsclient -c'
 alias v='vim'
-alias g='git'
 alias ur='cd "$(git rev-parse --show-toplevel)"'
 alias u='cd ..'
 alias uu='cd ../..'
@@ -73,27 +76,10 @@ alias uuu='cd ../../..'
 alias uuuu='cd ../../../..'
 alias be='bundle exec'
 alias less='less -gj10R'
-alias gd='git diff'
-alias gdc='git diff --cached'
-alias gb='git branch'
-alias gba='gb -a'
-alias gbr='gb -r'
-alias gg='git graph'
-alias gga='git graphall'
-alias grv='git remote -v'
-alias gs='git status'
-alias gf='git fetch -p'
-alias gp='git pull --ff-only'
 alias reload='exec /bin/zsh -l'
 alias kn='kubectl config set-context --current --namespace "$(kubectl get ns -o name | fzf -d/ --with-nth=2 | cut -d/ -f2)"'
 
-alias -g T='| tail'
-alias -g H='| head'
-alias -g L='| less'
-alias -g G='| grep'
-alias -g W='| wc -l'
-alias -g V='| vim -R -'
-alias -g C='| pbcopy'
+# git / global pipe 系の短縮は zsh-abbr で定義（~/.zsh/modules/abbreviations.zsh）
 
 # }}}1
 [ -f ~/.zsh/zsh_`uname` ] && source ~/.zsh/zsh_`uname`
