@@ -79,6 +79,11 @@ zsh/bin/Linux/x86_64/starship:
 	@mkdir -p zsh/bin/Linux/x86_64
 	@curl -fsSL https://github.com/starship/starship/releases/latest/download/starship-x86_64-unknown-linux-musl.tar.gz | tar -xzC zsh/bin/Linux/x86_64
 
+# WezTerm 公式シェル統合スクリプト（OSC 133 / OSC 7 / user var）の更新
+wezterm-shell-integration:
+	@echo "Updating WezTerm shell integration..."
+	@curl -fsSL https://raw.githubusercontent.com/wezterm/wezterm/main/assets/shell-integration/wezterm.sh -o zsh/wezterm.sh
+
 # Tmuxプラグインマネージャー
 tmux-plugins: tmux/plugins/tpm
 
