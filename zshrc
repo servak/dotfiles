@@ -8,9 +8,6 @@ source ~/.zsh/modules/zinit.zsh
 zmodload zsh/complist  # menuselect キーマップに必要
 autoload -Uz compinit && compinit
 
-bindkey "^[u" undo
-bindkey "^[r" redo
-
 export EDITOR=vim
 
 # 履歴設定読み込み
