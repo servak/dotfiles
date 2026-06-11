@@ -1,0 +1,4 @@
+local line
+grep -hv '^#' ~/.zsh/snippets* 2>/dev/null | while IFS= read -r line; do
+    print -rN -- "$line"
+done

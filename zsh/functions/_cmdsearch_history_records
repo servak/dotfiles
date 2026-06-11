@@ -1,0 +1,4 @@
+local key
+for key in ${(Onk)history}; do
+    print -rN -- "${history[$key]}"
+done

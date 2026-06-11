@@ -1,0 +1,24 @@
+local -a ssh_servers
+ssh_servers=($((cat ~/.ssh/known_hosts | sed -e 's/[, ].*$//' | sort -u) | $FZF $FZF_OPTS -m | tr '\n' ' '))
+if [ -z "$ssh_servers[1]" ]; then
+    return 0
+fi
+
+BUFFER="ssh $ssh_servers[1]"
+zle accept-line
+zle clear-screen
+shift ssh_servers
+
+for host in $ssh_servers
+do
+    tmux split-window -h "ssh $host"
+    tmux select-layout tiled > /dev/null
+done
+
+local len_servers=$#ssh_servers
+if [ $len_servers -ne 0 ]; then
+    tmux select-pane -t 0
+    tmux set-window-option synchronize-panes on
+    tmux rename-window "ssh-multi"
+fi
+return 0

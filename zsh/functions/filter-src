@@ -1,0 +1,6 @@
+local selected_dir=$(ghq list --full-path | $FZF $FZF_OPTS --query "$LBUFFER")
+if [ -n "$selected_dir" ]; then
+    BUFFER="cd ${selected_dir}"
+    zle accept-line
+fi
+zle clear-screen

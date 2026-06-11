@@ -1,0 +1,8 @@
+local selected
+selected=$({ _cmdsearch_history_records; _cmdsearch_snippet_records; } \
+        | $FZF $FZF_OPTS --read0 --query "$LBUFFER")
+if [ -n "$selected" ]; then
+    BUFFER=$selected
+    CURSOR=$#BUFFER
+fi
+zle clear-screen

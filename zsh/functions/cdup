@@ -1,0 +1,3 @@
+cd ..
+zle push-line-or-edit
+zle accept-line

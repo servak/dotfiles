@@ -1,0 +1,10 @@
+if [ -n "$BUFFER" ]; then
+    zle accept-line
+    return 0
+fi
+echo
+description
+# PROMPTの行数分だけ空行を挿入
+echo
+echo
+zle reset-prompt

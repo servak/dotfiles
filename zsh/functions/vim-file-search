@@ -1,0 +1,11 @@
+if [[ $(command git rev-parse --is-inside-work-tree 2> /dev/null) == 'true' ]]; then
+    files=$((git ls-files) | $FZF $FZF_OPTS -m | tr '\n' ' ')
+else
+    files=$((find . -type f) | $FZF $FZF_OPTS -m | tr '\n' ' ')
+fi
+
+if [ -n "$files" ]; then
+    BUFFER="v $files"
+    zle accept-line
+fi
+zle clear-screen
