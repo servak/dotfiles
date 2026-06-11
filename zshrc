@@ -157,13 +157,41 @@ if [ $TMUX ]; then
 fi
 # search snippet + history
 # http://blog.glidenote.com/blog/2014/06/26/snippets-peco-percol/
+# 履歴を NUL 区切りで出力する（改行を含むコマンドを 1 レコードとして保持）。
+# $history 連想配列を使うため zsh/parameter をロードしておく。
+zmodload -i zsh/parameter
+function _cmdsearch_history_records() {
+    local key
+    for key in ${(Onk)history}; do
+        print -rN -- "${history[$key]}"
+    done
+}
+function _cmdsearch_snippet_records() {
+    local line
+    grep -hv '^#' ~/.zsh/snippets* 2>/dev/null | while IFS= read -r line; do
+        print -rN -- "$line"
+    done
+}
+
 function filter-cmdsearch() {
-    BUFFER=$((grep -v "^#" ~/.zsh/snippets*; history -n 1 | tac) | $FZF $FZF_OPTS --query "$LBUFFER")
+    local selected
+    selected=$({ _cmdsearch_snippet_records; _cmdsearch_history_records; } \
+        | $FZF $FZF_OPTS --read0 --query "$LBUFFER")
+    if [ -n "$selected" ]; then
+        BUFFER=$selected
+        CURSOR=$#BUFFER
+    fi
     zle clear-screen
 }
 
 function filter-cmdsearch-history() {
-    BUFFER=$((history -n 1 | tac;grep -v "^#" ~/.zsh/snippets* ) | $FZF $FZF_OPTS --query "$LBUFFER")
+    local selected
+    selected=$({ _cmdsearch_history_records; _cmdsearch_snippet_records; } \
+        | $FZF $FZF_OPTS --read0 --query "$LBUFFER")
+    if [ -n "$selected" ]; then
+        BUFFER=$selected
+        CURSOR=$#BUFFER
+    fi
     zle clear-screen
 }
 
