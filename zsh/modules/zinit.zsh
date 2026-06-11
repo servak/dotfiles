@@ -40,10 +40,6 @@ zinit load "junegunn/fzf"
 zinit ice wait lucid
 zinit load "zsh-users/zsh-completions"
 
-# 履歴検索の改善
-zinit ice wait lucid
-zinit load "zsh-users/zsh-history-substring-search"
-
 # パス補完の改善
 zinit ice wait lucid
 zinit load "zsh-users/zsh-completions"
