@@ -40,10 +40,6 @@ zinit load "junegunn/fzf"
 zinit ice wait lucid
 zinit load "zsh-users/zsh-completions"
 
-# パス補完の改善
-zinit ice wait lucid
-zinit load "zsh-users/zsh-completions"
-
 # 現在の設定を改善
 zinit ice wait lucid
 zinit load "zsh-users/zsh-syntax-highlighting"
