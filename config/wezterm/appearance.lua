@@ -3,7 +3,7 @@ local wezterm = require("wezterm")
 local module = {}
 
 function module.apply_to_config(config)
-	config.default_prog = { "/opt/homebrew/bin/fish", "-l" }
+	config.default_prog = { "/bin/zsh", "-l" }
 	config.term = "xterm-256color"
 	config.font = wezterm.font_with_fallback({
 		"SauceCodePro Nerd Font Mono",

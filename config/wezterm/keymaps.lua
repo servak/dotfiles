@@ -56,7 +56,7 @@ function module.apply_to_config(config)
 			mods = "LEADER",
 			action = act.SpawnCommandInNewTab({
 				args = {
-					"/opt/homebrew/bin/fish",
+					"/bin/zsh",
 					"-lc",
 					"${EDITOR:-vim} ~/.config/wezterm/wezterm.lua",
 				},
