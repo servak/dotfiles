@@ -1,6 +1,11 @@
 #* -*- sh -*-
 # 補完まわり（complist / compinit / 色 / zstyle）
 zmodload zsh/complist  # menuselect キーマップに必要
+
+# 手で入れたコマンド補完の置き場。`cmd completion zsh > ~/.zsh/completions/_cmd`
+# のように _<コマンド名> で保存する。compinit より前に fpath へ追加すること。
+fpath=(~/.zsh/completions $fpath)
+
 autoload -Uz compinit && compinit
 
 source ~/.zsh/ls_colors.zsh
