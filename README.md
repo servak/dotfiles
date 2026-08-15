@@ -33,6 +33,23 @@ Laptop では GUI ターミナルとして `Ghostty` または `WezTerm` を使�
 `WezTerm` は `Ctrl-t` を leader にして、既存の `Ghostty` / `tmux` に近い操作へ寄せています。
 特に `Ctrl-t [` で copy-mode に入り、`hjkl` 移動、`v` / `V` / `r` で選択、`y` でクリップボードへコピーできます。
 
+#### iTerm2
+
+`config/iterm2/com.googlecode.iterm2.plist` に、プロファイル（配色・フォント）やキーバインドなど設定本体を置いています。
+ウィンドウ位置やアップデータの内部状態、`NoSync` が付く同期対象外のキーは除外済みです。
+
+```sh
+make iterm2
+```
+
+を実行すると、iTerm2 の「Preferences > General > Preferences」に相当する
+
+- `PrefsCustomFolder` を `config/iterm2` に
+- `LoadPrefsFromCustomFolder` を `true` に
+
+セットします。反映には iTerm2 の再起動、または Preferences 画面の `Save Preferences Now` が必要です。
+設定変更をそのまま `config/iterm2/com.googlecode.iterm2.plist` に書き戻したい場合は、Preferences 画面で `Save changes automatically` も有効にしてください（有効にすると `git diff` でそのまま設定変更履歴を追えます）。
+
 ### Fish migration
 
 `zsh` の設定はそのまま残したまま、`fish` の設定も追加できます。
