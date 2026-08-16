@@ -12,3 +12,8 @@
 /zsh/zsh_local
 
 /tmux/plugins/
+
+# グローバル ~/.gitignore (/.claude/*) で除外される .claude/ 配下のうち、
+# skills だけはこのリポジトリで明示的にバージョン管理する。
+!.claude/skills/
+!.claude/skills/**
