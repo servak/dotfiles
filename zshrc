@@ -25,10 +25,9 @@ bindkey -e
 source ~/.zsh/modules/abbreviations.zsh
 source ~/.zsh/modules/keybinds.zsh
 
-[ -f ~/.zsh_local ] && source ~/.zsh_local
-
 source ~/.zsh/modules/prompt.zsh       # PATH(~/.zsh/bin) 仕上げ + starship
 
-# WezTerm 公式シェル統合（OSC 133 セマンティックゾーン / OSC 7 cwd / user var）。
-# starship が組む PS1 を precmd で OSC 133 マーカーで包むため、必ず prompt.zsh の後に読む。
 [ -n "$WEZTERM_PANE" ] && [ -f ~/.zsh/wezterm.sh ] && source ~/.zsh/wezterm.sh
+[ "$TERM_PROGRAM" = "iTerm.app" ] && [ -f ~/.zsh/iterm2_shell_integration.zsh ] && source ~/.zsh/iterm2_shell_integration.zsh
+
+[ -f ~/.zsh_local ] && source ~/.zsh_local

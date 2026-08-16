@@ -96,6 +96,11 @@ wezterm-shell-integration:
 	@echo "Updating WezTerm shell integration..."
 	@curl -fsSL https://raw.githubusercontent.com/wezterm/wezterm/main/assets/shell-integration/wezterm.sh -o zsh/wezterm.sh
 
+# iTerm2 公式シェル統合スクリプトの更新
+iterm2-shell-integration:
+	@echo "Updating iTerm2 shell integration..."
+	@curl -fsSL https://iterm2.com/shell_integration/zsh -o zsh/iterm2_shell_integration.zsh
+
 # Tmuxプラグインマネージャー
 tmux-plugins: tmux/plugins/tpm
 
