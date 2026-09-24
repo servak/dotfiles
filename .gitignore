@@ -4,6 +4,10 @@
 /vim/*
 !/vim/snippets/
 !/vim/dict/
+!/vim/plugin/
+!/vim/autoload/
+/vim/autoload/*
+!/vim/autoload/review.vim
 
 /zsh/bin/Darwin
 /zsh/bin/Linux

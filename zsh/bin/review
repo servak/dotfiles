@@ -1,0 +1,18 @@
+#!/bin/sh
+# LLMの実装/設計書をvimでレビューする（詳細は vim/plugin/review.vim）
+#
+#   review              未コミットの変更（未追跡ファイル含む）をレビュー
+#   review main         mainとの差分をレビュー
+#   review docs/*.md    ファイルを差分なしで順に読む（設計書向け）
+
+if [ $# -gt 0 ] && [ -e "$1" ]; then
+  exec vim -c 'ReviewDoc' -- "$@"
+fi
+
+if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
+  echo "review: gitリポジトリではありません" >&2
+  exit 1
+fi
+
+# vimのコマンドラインに渡すので ref 内の | をエスケープ
+exec vim -c "Review $(printf '%s' "$*" | sed 's/|/\\|/g')"

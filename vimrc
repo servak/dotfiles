@@ -685,6 +685,10 @@ let test#python#runner = 'pytest'
 nmap <Leader>t :TestSuite<CR>
 
 "------------------------------------
+" LLMレビュー: vim/plugin/review.vim を参照（シェルからは `review`）
+"------------------------------------
+
+"------------------------------------
 " Rust
 "------------------------------------
 let g:rustfmt_autosave = 1
