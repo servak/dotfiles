@@ -6,7 +6,10 @@
 "   シェルからは `review [ref]` / `review docs/*.md`
 "
 " 移動:
-"   ]q / [q      次/前のファイル（変更ありなら左に変更前をGdiffsplit）
+"   ;n / ;p      次/前のファイル（]q / [q でも可）
+"   ]q / [q      次/前のファイル（変更箇所はgitgutterのサインで表示）
+"   ]c / [c      ファイル内の次/前の変更箇所（gitgutter）
+"   <Leader>b    変更前（ref側）を左に並べてdiff表示／もう一度押すと閉じる
 "   <CR>         quickfix上で選んだファイルを開く
 "   x            quickfix上でレビュー済みをトグル（済みにすると次へ進む）
 "   <Leader>x    ファイル上で同上
@@ -35,10 +38,14 @@ command! ReviewNotes call review#open_notes()
 command! ReviewSend call review#send()
 command! ReviewClear call review#clear_notes()
 command! ReviewPreview call review#preview()
+command! ReviewBefore call review#toggle_before()
 command! ReviewEnd call review#end()
 
 nnoremap <silent> ]q :call review#jump('cnext')<CR>
 nnoremap <silent> [q :call review#jump('cprev')<CR>
+nnoremap <silent> <Leader>n :call review#jump('cnext')<CR>
+nnoremap <silent> <Leader>p :call review#jump('cprev')<CR>
+nnoremap <silent> <Leader>b :ReviewBefore<CR>
 nnoremap <silent> <Leader>x :call review#toggle_done()<CR>
 nnoremap <silent> <Leader>m :ReviewComment<CR>
 xnoremap <silent> <Leader>m :ReviewComment<CR>

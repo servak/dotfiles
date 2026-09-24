@@ -5,9 +5,10 @@
 "   ref     : 比較対象のgit ref。空なら「差分を取らずファイルを読むだけ」（設計書モード）
 "   root    : gitリポジトリのルート（設計書モードでgit外なら空）
 "   main    : 実ファイルを表示するウィンドウID
-"   partner : Gdiffsplitで開いた比較用ウィンドウID
+"   partner : <Leader>bで開いた変更前の比較用ウィンドウID
 "   done    : レビュー済みにしたファイル（絶対パス → 1）
-let s:state = {'active': 0, 'ref': '', 'root': '', 'main': 0, 'partner': 0, 'done': {}}
+let s:state = {'active': 0, 'ref': '', 'root': '', 'main': 0, 'partner': 0, 'done': {},
+      \ 'gutter_base': ''}
 
 function! s:err(msg) abort
   echohl ErrorMsg | echomsg 'Review: ' . a:msg | echohl None
@@ -73,10 +74,16 @@ function! review#start_doc(files) abort
 endfunction
 
 function! s:begin(ref, items, title) abort
+  " レビュー中に再度開始した場合はレビュー前の値を保持したままにする
+  if !s:state.active
+    let s:state.gutter_base = get(g:, 'gitgutter_diff_base', '')
+  endif
   let s:state.active = 1
   let s:state.ref = a:ref
   let s:state.done = {}
   let s:state.partner = 0
+  " gitgutterのサインをref基準にする（既定はindex基準なので、stage済みの変更が見えない）
+  let g:gitgutter_diff_base = a:ref
   " quickfixウィンドウ以外の通常ウィンドウをメインにする
   if &buftype ==# 'quickfix'
     wincmd p
@@ -129,18 +136,35 @@ function! s:open_current() abort
   if st ==# 'D'
     " 削除されたファイルはref側の内容を読み取り専用で表示
     execute 'Gedit' s:state.ref . ':' . item.user_data.path
-  elseif st !~# '^[A?]$' && st !=# 'doc'
-    " 新規/未追跡には比較相手がないのでdiffは開かない
-    " 変更前を左に置く
-    execute 'leftabove Gvdiffsplit' s:state.ref
-    let s:state.partner = win_getid()
-    call s:goto_main()
   endif
   if &filetype ==# 'markdown'
     call s:markdown_view()
   endif
   " LLMが裏で書き換えていても最新を見る
   silent! checktime
+  silent! GitGutter
+endfunction
+
+" 変更前（ref側）を左に並べてdiff表示する。もう一度押すと閉じる
+function! review#toggle_before() abort
+  if !s:state.active || empty(s:state.ref)
+    return s:err('差分レビュー中ではありません')
+  endif
+  if s:state.partner && win_id2win(s:state.partner) > 0
+    call s:close_partner()
+    return
+  endif
+  let qf = getqflist({'idx': 0, 'items': 0})
+  let st = get(get(qf.items[qf.idx - 1], 'user_data', {}), 'status', '')
+  if st =~# '^[AD?]$'
+    return s:err('新規/削除ファイルには比較対象がありません')
+  endif
+  if !s:goto_main()
+    return
+  endif
+  execute 'leftabove Gvdiffsplit' s:state.ref
+  let s:state.partner = win_getid()
+  call s:goto_main()
 endfunction
 
 " cnext/cprev/cc/cfirst を実行して開く。リスト端なら何もしない
@@ -332,6 +356,8 @@ endfunction
 function! review#end() abort
   if s:state.active
     call s:close_partner()
+    let g:gitgutter_diff_base = s:state.gutter_base
+    silent! GitGutterAll
   endif
   let s:state.active = 0
   let s:state.ref = ''
