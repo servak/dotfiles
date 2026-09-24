@@ -26,6 +26,7 @@ set splitbelow                   " newした時に下に開く
 set splitright                   " vertical splitは右に開く
 set isk+=-                       " -もwordとして扱う。
 set signcolumn=yes               " diagnosticsやgit signでレイアウトを安定させる
+set updatetime=300               " git signやCursorHoldの反映を速くする（既定4000ms）
 
 " プラグイン読み込み {{{1
 filetype plugin indent off
@@ -37,6 +38,7 @@ Plug 'vim-scripts/xoria256.vim'
 Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'qpkorr/vim-bufkill'
+let g:BufKillCreateMappings = 0 " ;bd 等は使わない（:BD は <Space>q で利用）
 Plug 'tpope/vim-commentary'
 " Plug 'honza/vim-snippets'
 Plug 'prabirshrestha/asyncomplete.vim'
@@ -411,10 +413,42 @@ nmap <Leader>u :ChangeProjectRootDirectory<CR>
 " }}}1
 " プラグインごとの設定 {{{1
 
+" colorschemeの上書きはColorSchemeイベントで行う（再読込しても消えないように）
+function! s:tweak_colors() abort
+  " サイン列を行番号と同じ背景にして灰色の帯をなくす
+  highlight SignColumn   guibg=#121212 ctermbg=233
+  highlight GitGutterAdd          guifg=#87af87 guibg=#121212 ctermfg=108 ctermbg=233
+  highlight GitGutterChange       guifg=#d7af5f guibg=#121212 ctermfg=179 ctermbg=233
+  highlight GitGutterDelete       guifg=#d75f5f guibg=#121212 ctermfg=167 ctermbg=233
+  highlight link GitGutterChangeDelete GitGutterChange
+  " diff（;bで開く変更前比較）は背景を薄く色付けする程度に抑える
+  highlight DiffAdd    guifg=NONE guibg=#1f3322 ctermfg=NONE ctermbg=22
+  highlight DiffChange guifg=NONE guibg=#2b2a1e ctermfg=NONE ctermbg=236
+  highlight DiffText   guifg=NONE guibg=#4a4424 gui=bold ctermfg=NONE ctermbg=58 cterm=bold
+  highlight DiffDelete guifg=#5f3a3a guibg=#261a1a gui=NONE ctermfg=52 ctermbg=233 cterm=NONE
+endfunction
+augroup tweak_colors
+  autocmd!
+  autocmd ColorScheme * call s:tweak_colors()
+augroup END
+
 try
   colorscheme xoria256
 catch
 endtry
+
+"------------------------------------
+" vim-gitgutter
+"------------------------------------
+" 記号ではなく細い縦線で変更箇所を示す（削除は行の境目に線）
+let g:gitgutter_sign_added              = '▎'
+let g:gitgutter_sign_modified           = '▎'
+let g:gitgutter_sign_removed            = '▁'
+let g:gitgutter_sign_removed_first_line = '▔'
+let g:gitgutter_sign_removed_above_and_below = '▁'
+let g:gitgutter_sign_modified_removed   = '▎'
+" LSPの診断サインと重なったら診断を優先する
+let g:gitgutter_sign_priority = 5
 
 "------------------------------------
 " fzf.vim
