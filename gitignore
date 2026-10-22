@@ -4,3 +4,4 @@
 .tool-versions
 config/fish/fish_variables
 config/fish/secrets/*.fish
+zsh/secrets/*.env
