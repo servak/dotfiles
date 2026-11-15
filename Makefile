@@ -8,7 +8,7 @@
 # 設定ファイル定義
 DOT_FILES = zshrc zsh vimrc vim tmux.conf tmux dir_colors gitconfig gitignore gvimrc
 CONFIG_FILES = config/starship.toml $(CONFIG_FILES_$(OS))
-CONFIG_FILES_Darwin = config/mise/config.toml config/ghostty/config config/cmux/cmux.json
+CONFIG_FILES_Darwin = config/mise/config.toml config/ghostty/config
 CONFIG_DIRS = config/fish config/wezterm
 CONFIG_FILE_TARGETS = $(foreach f, $(patsubst config/%,%,$(CONFIG_FILES)), link-config-file-$(subst /,__,$(f)))
 CONFIG_DIR_TARGETS = $(foreach d, $(patsubst config/%,%,$(CONFIG_DIRS)), link-config-dir-$(subst /,__,$(d)))
@@ -114,10 +114,6 @@ backup-config-files:
 		mkdir -p $(BACKUPDIR)/config/ghostty; \
 		cp $(HOME)/.config/ghostty/config $(BACKUPDIR)/config/ghostty/; \
 	fi
-	@if [ -f $(HOME)/.config/cmux/cmux.json -a ! -L $(HOME)/.config/cmux/cmux.json ]; then \
-		mkdir -p $(BACKUPDIR)/config/cmux; \
-		cp $(HOME)/.config/cmux/cmux.json $(BACKUPDIR)/config/cmux/; \
-	fi
 	@if [ -d $(HOME)/.config/wezterm -a ! -L $(HOME)/.config/wezterm ]; then \
 		mkdir -p $(BACKUPDIR)/config; \
 		cp -rp $(HOME)/.config/wezterm $(BACKUPDIR)/config/; \
@@ -147,10 +143,6 @@ restore-config-files:
 		mkdir -p $(HOME)/.config/ghostty; \
 		cp $(BACKUPDIR)/config/ghostty/config $(HOME)/.config/ghostty/; \
 	fi
-	@if [ -f $(BACKUPDIR)/config/cmux/cmux.json ]; then \
-		mkdir -p $(HOME)/.config/cmux; \
-		cp $(BACKUPDIR)/config/cmux/cmux.json $(HOME)/.config/cmux/; \
-	fi
 	@if [ -d $(BACKUPDIR)/config/wezterm ]; then \
 		mkdir -p $(HOME)/.config; \
 		cp -rp $(BACKUPDIR)/config/wezterm $(HOME)/.config/; \
@@ -172,7 +164,6 @@ remove-config-files:
 	@if [ "$(OS)" = "Darwin" ]; then \
 		rm -f $(HOME)/.config/mise/config.toml; \
 		rm -f $(HOME)/.config/ghostty/config; \
-		rm -f $(HOME)/.config/cmux/cmux.json; \
 		rm -rf $(HOME)/.config/wezterm; \
 	fi
 
@@ -188,7 +179,6 @@ clean-config-files:
 	@rm -f $(HOME)/.config/starship.toml
 	@rm -f $(HOME)/.config/mise/config.toml
 	@rm -f $(HOME)/.config/ghostty/config
-	@if [ -L $(HOME)/.config/cmux/cmux.json ]; then rm -f $(HOME)/.config/cmux/cmux.json; fi
 	@rm -rf $(HOME)/.config/wezterm
 
 clean-config-dirs:

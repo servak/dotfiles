@@ -3,7 +3,6 @@
 
     mdview <file.md>
 
-- cmux の中: cmux の Markdown ビューアで開く
 - iTerm2 の中: 今のペインを右に分割し、ブラウザペインで表示する
   （Homebrew cask "itermbrowserplugin" が必要。Markdown と Mermaid は
   ページ内の markdown-it / mermaid.js で描画する。ライブラリは CDN から読む）
@@ -296,12 +295,6 @@ def main():
         print("mdview: %s が見つかりません" % sys.argv[1], file=sys.stderr)
         return 1
 
-    cmux_cli = os.environ.get("CMUX_BUNDLED_CLI_PATH")
-    if os.environ.get("CMUX_SURFACE_ID") and cmux_cli:
-        return subprocess.run(
-            [cmux_cli, "markdown", "open", md_path, "--direction", "right"],
-            stdout=subprocess.DEVNULL,
-        ).returncode
     if os.environ.get("TERM_PROGRAM") == "iTerm.app" and os.environ.get("ITERM_SESSION_ID"):
         return open_in_iterm(md_path)
     os.execvp("glow", ["glow", "-p", md_path])

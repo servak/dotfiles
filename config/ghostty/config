@@ -1,7 +1,6 @@
 # Ghostty is for the macOS laptop workflow. tmux remains for remote Linux hosts.
 macos-option-as-alt = true
 command = /opt/homebrew/bin/fish
-# cmux also reads this file (fonts, colors, keybinds); cmux-only settings live in config/cmux/cmux.json.
 # Japanese glyphs fall back to LINE Seed JP, then Hiragino Sans (same order as WezTerm).
 # Emoji and Nerd Font symbols use Ghostty's built-in fallbacks.
 font-family = "SauceCodePro Nerd Font Mono"
@@ -51,7 +50,7 @@ keybind = chain=deactivate_key_table
 keybind = leader/shift+slash=toggle_command_palette
 keybind = chain=deactivate_key_table
 
-# Tabs (in cmux, a Ghostty tab is a sidebar workspace)
+# Tabs
 keybind = leader/c=new_tab
 keybind = chain=deactivate_key_table
 keybind = leader/n=next_tab

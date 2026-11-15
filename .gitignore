@@ -16,6 +16,3 @@
 /zsh/zsh_local
 
 /tmux/plugins/
-
-# cmux writes this lock next to the linked cmux.json
-/config/cmux/*.cmux-write.lock
