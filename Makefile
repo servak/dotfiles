@@ -12,6 +12,7 @@ CONFIG_FILES_Darwin = config/mise/config.toml config/ghostty/config
 CONFIG_DIRS = config/fish config/wezterm
 CONFIG_FILE_TARGETS = $(foreach f, $(patsubst config/%,%,$(CONFIG_FILES)), link-config-file-$(subst /,__,$(f)))
 CONFIG_DIR_TARGETS = $(foreach d, $(patsubst config/%,%,$(CONFIG_DIRS)), link-config-dir-$(subst /,__,$(d)))
+ITERM2_TARGETS_Darwin = iterm2
 DIRCOLORS_ZSH_FILE = zsh/ls_colors.zsh
 DIRCOLORS_FISH_FILE = config/fish/conf.d/ls_colors.fish
 DIRCOLORS_CMD = $(shell command -v gdircolors 2>/dev/null || command -v dircolors 2>/dev/null)
@@ -60,7 +61,18 @@ dircolors-generated:
 	@sed -n "s/^LS_COLORS='\\(.*\\)';$$/set -gx LS_COLORS '\\1'/p" $(DIRCOLORS_ZSH_FILE) >> $(DIRCOLORS_FISH_FILE)
 
 # config設定（OS固有処理含む）
-config: $(CONFIG_FILE_TARGETS) $(CONFIG_DIR_TARGETS)
+config: $(CONFIG_FILE_TARGETS) $(CONFIG_DIR_TARGETS) $(ITERM2_TARGETS_$(OS))
+
+# iTerm2（macOSのみ）
+# symlinkではなく、iTerm2純正の「カスタムフォルダから設定を読み込む」機能を使う。
+# config/iterm2/com.googlecode.iterm2.plist を直接読み書きしてもらう。
+iterm2:
+	@echo "Pointing iTerm2 at $(CURRENTDIR)/config/iterm2 for preferences..."
+	@defaults write com.googlecode.iterm2 PrefsCustomFolder "$(CURRENTDIR)/config/iterm2"
+	@defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
+	@echo "iTerm2を再起動するか、Preferences > General > Preferences の"
+	@echo "'Save Preferences Now' を実行すると config/iterm2/com.googlecode.iterm2.plist から読み込まれます。"
+	@echo "設定変更を自動でこのファイルに書き戻したい場合は 'Save changes automatically' もONにしてください。"
 
 # ========================================
 # 環境準備
@@ -83,6 +95,11 @@ zsh/bin/Linux/x86_64/starship:
 wezterm-shell-integration:
 	@echo "Updating WezTerm shell integration..."
 	@curl -fsSL https://raw.githubusercontent.com/wezterm/wezterm/main/assets/shell-integration/wezterm.sh -o zsh/wezterm.sh
+
+# iTerm2 公式シェル統合スクリプトの更新
+iterm2-shell-integration:
+	@echo "Updating iTerm2 shell integration..."
+	@curl -fsSL https://iterm2.com/shell_integration/zsh -o zsh/iterm2_shell_integration.zsh
 
 # Tmuxプラグインマネージャー
 tmux-plugins: tmux/plugins/tpm
@@ -165,6 +182,8 @@ remove-config-files:
 		rm -f $(HOME)/.config/mise/config.toml; \
 		rm -f $(HOME)/.config/ghostty/config; \
 		rm -rf $(HOME)/.config/wezterm; \
+		defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool false; \
+		defaults delete com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true; \
 	fi
 
 remove-config-dirs:
@@ -180,6 +199,10 @@ clean-config-files:
 	@rm -f $(HOME)/.config/mise/config.toml
 	@rm -f $(HOME)/.config/ghostty/config
 	@rm -rf $(HOME)/.config/wezterm
+	@if [ "$(OS)" = "Darwin" ]; then \
+		defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool false; \
+		defaults delete com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true; \
+	fi
 
 clean-config-dirs:
 	@echo "Cleaning config directories..."
@@ -263,7 +286,8 @@ help:
 	@echo "  make vim       - Vim configuration (includes plugins)"
 	@echo "  make tmux      - Tmux configuration"
 	@echo "  make git       - Git configuration"
-	@echo "  make config    - Config files (starship, mise, fish)"
+	@echo "  make config    - Config files (starship, mise, fish, iTerm2)"
+	@echo "  make iterm2    - Point iTerm2 at config/iterm2 for preferences (macOS only)"
 	@echo "  make dircolors-generated - Generate LS_COLORS files for zsh and fish"
 	@echo ""
 	@echo "Environment setup:"
@@ -276,7 +300,7 @@ help:
 	@echo "  make remove  - Remove all configurations"
 	@echo "  make clean   - Clean symlinks only"
 
-.PHONY: all install prepare zsh vim gvim tmux git dircolors dircolors-generated config
+.PHONY: all install prepare zsh vim gvim tmux git dircolors dircolors-generated config iterm2
 .PHONY: starship tmux-plugins backup restore remove clean backup-config-files restore-config-files
 .PHONY: backup-config-dirs restore-config-dirs remove-config-dirs clean-config-dirs
 .PHONY: remove-config-files clean-config-files vim-dependency make-backup-dir help
