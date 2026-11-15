@@ -1,18 +1,36 @@
 # Ghostty is for the macOS laptop workflow. tmux remains for remote Linux hosts.
 macos-option-as-alt = true
 command = /opt/homebrew/bin/fish
+# cmux also reads this file (fonts, colors, keybinds); cmux-only settings live in config/cmux/cmux.json.
+# Japanese glyphs fall back to LINE Seed JP, then Hiragino Sans (same order as WezTerm).
+# Emoji and Nerd Font symbols use Ghostty's built-in fallbacks.
 font-family = "SauceCodePro Nerd Font Mono"
+font-family = "LINE Seed JP"
+font-family = "Hiragino Sans"
 font-size = 14
 font-thicken = true
 split-inherit-working-directory = true
 window-save-state = always
 
+# Keep TERM=xterm-ghostty locally, but send xterm-256color over ssh
+# (WezTerm used term = xterm-256color for remote Linux hosts).
+shell-integration-features = ssh-env
+
 # Neutral dark split styling tuned for dir_colors output.
 # Active pane sits around RGB(43, 43, 43), inactive panes around RGB(24, 24, 24).
 background = 2b2b2b
+foreground = d0d0d0
+cursor-color = 80ebdf
+cursor-text = 000000
+selection-background = f0e68c
+selection-foreground = 111111
 split-divider-color = 4a4a4a
 unfocused-split-opacity = 0.55
 unfocused-split-fill = 181818
+
+# Jump between shell prompts without the leader (WezTerm Alt-[ / Alt-]).
+keybind = alt+left_bracket=jump_to_prompt:-1
+keybind = alt+right_bracket=jump_to_prompt:1
 
 # Ghostty leader on the laptop: Ctrl-t
 keybind = ctrl+t=activate_key_table:leader
@@ -29,13 +47,20 @@ keybind = leader/r=reload_config
 keybind = chain=deactivate_key_table
 keybind = leader/e=open_config
 keybind = chain=deactivate_key_table
+# Command palette (closest to WezTerm's key assignment launcher on Leader-?).
+keybind = leader/shift+slash=toggle_command_palette
+keybind = chain=deactivate_key_table
 
-# Tabs
+# Tabs (in cmux, a Ghostty tab is a sidebar workspace)
 keybind = leader/c=new_tab
 keybind = chain=deactivate_key_table
 keybind = leader/n=next_tab
 keybind = chain=deactivate_key_table
+keybind = leader/ctrl+n=next_tab
+keybind = chain=deactivate_key_table
 keybind = leader/p=previous_tab
+keybind = chain=deactivate_key_table
+keybind = leader/ctrl+p=previous_tab
 keybind = chain=deactivate_key_table
 keybind = leader/1=goto_tab:1
 keybind = chain=deactivate_key_table
@@ -84,12 +109,34 @@ keybind = leader/ctrl+j=resize_split:down,5
 keybind = leader/ctrl+k=resize_split:up,5
 keybind = leader/ctrl+l=resize_split:right,10
 
+# Config mode (WezTerm Leader-m): stays active until Escape / q / Ctrl-c or an unbound key.
+keybind = leader/m=activate_key_table:config
+keybind = config/
+keybind = config/escape=deactivate_all_key_tables
+keybind = config/q=deactivate_all_key_tables
+keybind = config/ctrl+c=deactivate_all_key_tables
+keybind = config/catch_all=deactivate_all_key_tables
+keybind = config/h=resize_split:left,10
+keybind = config/j=resize_split:down,5
+keybind = config/k=resize_split:up,5
+keybind = config/l=resize_split:right,10
+# Use shift+<key>: an uppercase key name maps to the same key as lowercase and overrides it.
+keybind = config/shift+h=goto_split:left
+keybind = config/shift+j=goto_split:down
+keybind = config/shift+k=goto_split:up
+keybind = config/shift+l=goto_split:right
+keybind = config/n=next_tab
+keybind = config/p=previous_tab
+keybind = config/s=new_split:down
+keybind = config/v=new_split:right
+keybind = config/x=close_surface
+
 # Handy replacements for a few tmux workflows
 keybind = leader/left_bracket=jump_to_prompt:-1
 keybind = chain=deactivate_key_table
 keybind = leader/right_bracket=jump_to_prompt:1
 keybind = chain=deactivate_key_table
-keybind = leader/P=paste_from_clipboard
+keybind = leader/shift+p=paste_from_clipboard
 keybind = chain=deactivate_key_table
-keybind = leader/W=write_scrollback_file:open
+keybind = leader/shift+w=write_scrollback_file:open
 keybind = chain=deactivate_key_table
