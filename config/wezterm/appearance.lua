@@ -7,6 +7,7 @@ function module.apply_to_config(config)
 	config.term = "xterm-256color"
 	config.font = wezterm.font_with_fallback({
 		"SauceCodePro Nerd Font Mono",
+		"LINE Seed JP",
 		"Hiragino Sans",
 		"JetBrains Mono",
 		"Noto Color Emoji",
@@ -33,6 +34,7 @@ function module.apply_to_config(config)
 	config.window_frame = {
 		font = wezterm.font_with_fallback({
 			"SauceCodePro Nerd Font Mono",
+			"LINE Seed JP",
 			"Hiragino Sans",
 			"JetBrains Mono",
 			"Noto Color Emoji",
