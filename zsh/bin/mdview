@@ -1,0 +1,311 @@
+#!/usr/bin/env python3
+"""Markdown をターミナルの右に開いて、保存したら表示を更新する。
+
+    mdview <file.md>
+
+- cmux の中: cmux の Markdown ビューアで開く
+- iTerm2 の中: 今のペインを右に分割し、ブラウザペインで表示する
+  （Homebrew cask "itermbrowserplugin" が必要。Markdown と Mermaid は
+  ページ内の markdown-it / mermaid.js で描画する。ライブラリは CDN から読む）
+- それ以外: glow のページャで開く
+
+iTerm2 のブラウザペインは file:// のページから隣のファイルを fetch できないが、
+<script src> での読み込みはできる。そこで Markdown を data.js に書き出し、
+ページが1秒ごとに読み直す。data.js の書き直しは裏で動く監視プロセスが行い、
+表示しているペインが閉じられたら後片付けして終了する。
+"""
+
+import hashlib
+import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+
+CACHE_DIR = os.path.expanduser("~/Library/Caches/mdview")
+DYNAMIC_PROFILE_PATH = os.path.expanduser(
+    "~/Library/Application Support/iTerm2/DynamicProfiles/mdview.json"
+)
+PROFILE_NAME = "mdview"
+PROFILE_GUID = "dotfiles-mdview-browser"
+POLL_INTERVAL_SEC = 0.5
+SESSION_CHECK_INTERVAL_SEC = 5
+
+# iTerm2 のプロファイルは開く URL が固定なので、いったん launch.html を開き、
+# launch.js に書かれた表示ページへ移動する。
+LAUNCH_HTML = """<!doctype html>
+<meta charset="utf-8">
+<script>
+const s = document.createElement("script");
+s.src = "launch.js?t=" + Date.now();
+s.onload = () => location.replace(window.__mdviewNext);
+document.head.appendChild(s);
+</script>
+"""
+
+VIEW_HTML = """<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>mdview</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5.8.1/github-markdown-light.min.css">
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+<style>
+  body { margin: 0; background: #fff; }
+  .markdown-body { box-sizing: border-box; max-width: 980px; margin: 0 auto; padding: 24px 32px; }
+  .markdown-body pre.mermaid { background: transparent; text-align: center; }
+  #mdview-error { display: none; color: #b00; padding: 8px 32px; }
+</style>
+</head>
+<body>
+<div id="mdview-error"></div>
+<article id="content" class="markdown-body"></article>
+<script>
+const md = markdownit({ html: false, linkify: true });
+const defaultFence = md.renderer.rules.fence;
+md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  if (token.info.trim() === "mermaid") {
+    return '<pre class="mermaid">' + md.utils.escapeHtml(token.content) + "</pre>";
+  }
+  return defaultFence(tokens, idx, options, env, self);
+};
+mermaid.initialize({ startOnLoad: false, theme: "default" });
+
+let rev = null;
+
+async function render(data) {
+  document.title = data.title;
+  // 描き直しでスクロール位置が飛ばないよう、描画前の位置に戻す
+  const y = window.scrollY;
+  const content = document.getElementById("content");
+  content.innerHTML = md.render(data.text);
+  try {
+    await mermaid.run({ nodes: content.querySelectorAll("pre.mermaid") });
+  } catch (e) {
+    console.error(e);
+  }
+  window.scrollTo(0, y);
+}
+
+function poll() {
+  const s = document.createElement("script");
+  s.src = "data.js?t=" + Date.now();
+  s.onload = () => {
+    s.remove();
+    const data = window.__mdview;
+    if (data && data.rev !== rev) {
+      rev = data.rev;
+      render(data);
+    }
+  };
+  s.onerror = () => s.remove();
+  document.head.appendChild(s);
+}
+
+poll();
+setInterval(poll, 1000);
+</script>
+</body>
+</html>
+"""
+
+SPLIT_SCRIPT = """
+on run argv
+  set targetId to item 1 of argv
+  tell application "iTerm2"
+    repeat with w in windows
+      repeat with t in tabs of w
+        if (id of sessions of t) contains targetId then
+          -- ループ変数の参照のまま split すると応答が返らないことがあるので、ID で指し直す
+          set s to session id targetId of t
+          tell s to set newSession to (split vertically with profile "%s")
+          tell s to select
+          return id of newSession
+        end if
+      end repeat
+    end repeat
+  end tell
+  error "session not found: " & targetId
+end run
+""" % PROFILE_NAME
+
+SESSION_EXISTS_SCRIPT = """
+on run argv
+  set targetId to item 1 of argv
+  if application "iTerm2" is not running then return "no"
+  tell application "iTerm2"
+    repeat with w in windows
+      repeat with t in tabs of w
+        repeat with s in sessions of t
+          if id of s is targetId then return "yes"
+        end repeat
+      end repeat
+    end repeat
+  end tell
+  return "no"
+end run
+"""
+
+
+def write_atomic(path, content):
+    """一時ファイルに書いてから置き換え、読み込み途中のファイルを見せない。"""
+    tmp_path = path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    os.replace(tmp_path, path)
+
+
+def write_data_js(view_dir, md_path):
+    """Markdown を読み、ページが読み込む data.js を書き出す。"""
+    with open(md_path, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+    data = {
+        "rev": hashlib.sha1(text.encode("utf-8")).hexdigest(),
+        "title": os.path.basename(md_path),
+        "text": text,
+    }
+    write_atomic(
+        os.path.join(view_dir, "data.js"),
+        "window.__mdview = " + json.dumps(data, ensure_ascii=False) + ";\n",
+    )
+
+
+def ensure_dynamic_profile():
+    """ブラウザ用の Dynamic Profile を用意する。新しく書いたときは True を返す。"""
+    profile = {
+        "Profiles": [
+            {
+                "Name": PROFILE_NAME,
+                "Guid": PROFILE_GUID,
+                "Custom Command": "Browser",
+                "Initial URL": "file://" + os.path.join(CACHE_DIR, "launch.html"),
+            }
+        ]
+    }
+    content = json.dumps(profile, indent=2) + "\n"
+    try:
+        with open(DYNAMIC_PROFILE_PATH, encoding="utf-8") as f:
+            if f.read() == content:
+                return False
+    except FileNotFoundError:
+        pass
+    os.makedirs(os.path.dirname(DYNAMIC_PROFILE_PATH), exist_ok=True)
+    write_atomic(DYNAMIC_PROFILE_PATH, content)
+    return True
+
+
+def osascript(script, *args):
+    """AppleScript を実行して標準出力を返す。"""
+    result = subprocess.run(
+        ["osascript", "-", *args],
+        input=script,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.strip()
+
+
+def session_exists(session_id):
+    """iTerm2 にそのセッションがまだあるか調べる。"""
+    try:
+        return osascript(SESSION_EXISTS_SCRIPT, session_id) == "yes"
+    except subprocess.CalledProcessError:
+        return False
+
+
+def watch(view_dir, md_path, session_id):
+    """保存を監視して data.js を書き直し、ペインが閉じたら片付けて終わる。"""
+    last_mtime = None
+    last_session_check = time.monotonic()
+    try:
+        while True:
+            try:
+                mtime = os.stat(md_path).st_mtime_ns
+                if mtime != last_mtime:
+                    last_mtime = mtime
+                    write_data_js(view_dir, md_path)
+            except FileNotFoundError:
+                # エディタが保存時にファイルを置き換える間は一瞬消える
+                pass
+            if time.monotonic() - last_session_check >= SESSION_CHECK_INTERVAL_SEC:
+                last_session_check = time.monotonic()
+                if not session_exists(session_id):
+                    return
+            time.sleep(POLL_INTERVAL_SEC)
+    finally:
+        shutil.rmtree(view_dir, ignore_errors=True)
+
+
+def daemonize():
+    """端末から切り離した子プロセスにする。親プロセスでは False を返す。"""
+    if os.fork() > 0:
+        return False
+    os.setsid()
+    if os.fork() > 0:
+        os._exit(0)
+    devnull = os.open(os.devnull, os.O_RDWR)
+    for fd in (0, 1, 2):
+        os.dup2(devnull, fd)
+    return True
+
+
+def open_in_iterm(md_path):
+    """今の iTerm2 ペインを右に分割して表示し、裏で保存の監視を始める。"""
+    session_id = os.environ["ITERM_SESSION_ID"].split(":", 1)[-1]
+    view_id = hashlib.sha1((md_path + str(time.time())).encode()).hexdigest()[:12]
+    view_dir = os.path.join(CACHE_DIR, "views", view_id)
+    os.makedirs(view_dir, exist_ok=True)
+
+    write_atomic(os.path.join(CACHE_DIR, "launch.html"), LAUNCH_HTML)
+    write_atomic(os.path.join(view_dir, "index.html"), VIEW_HTML)
+    write_data_js(view_dir, md_path)
+    write_atomic(
+        os.path.join(CACHE_DIR, "launch.js"),
+        "window.__mdviewNext = " + json.dumps("views/%s/index.html" % view_id) + ";\n",
+    )
+    if ensure_dynamic_profile():
+        # iTerm2 が Dynamic Profile を読み込むまで待つ
+        time.sleep(2)
+
+    try:
+        view_session_id = osascript(SPLIT_SCRIPT, session_id)
+    except subprocess.CalledProcessError as e:
+        shutil.rmtree(view_dir, ignore_errors=True)
+        print("mdview: iTerm2 のペインを開けませんでした: " + e.stderr.strip(), file=sys.stderr)
+        return 1
+
+    if daemonize():
+        try:
+            watch(view_dir, md_path, view_session_id)
+        finally:
+            os._exit(0)
+    return 0
+
+
+def main():
+    """引数を確かめ、動いている端末に合わせて開き方を選ぶ。"""
+    if len(sys.argv) != 2:
+        print("usage: mdview <file>", file=sys.stderr)
+        return 1
+    md_path = os.path.abspath(sys.argv[1])
+    if not os.path.isfile(md_path):
+        print("mdview: %s が見つかりません" % sys.argv[1], file=sys.stderr)
+        return 1
+
+    cmux_cli = os.environ.get("CMUX_BUNDLED_CLI_PATH")
+    if os.environ.get("CMUX_SURFACE_ID") and cmux_cli:
+        return subprocess.run(
+            [cmux_cli, "markdown", "open", md_path, "--direction", "right"],
+            stdout=subprocess.DEVNULL,
+        ).returncode
+    if os.environ.get("TERM_PROGRAM") == "iTerm.app" and os.environ.get("ITERM_SESSION_ID"):
+        return open_in_iterm(md_path)
+    os.execvp("glow", ["glow", "-p", md_path])
+
+
+if __name__ == "__main__":
+    sys.exit(main())
