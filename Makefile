@@ -13,6 +13,8 @@ CONFIG_DIRS = config/fish config/wezterm
 CONFIG_FILE_TARGETS = $(foreach f, $(patsubst config/%,%,$(CONFIG_FILES)), link-config-file-$(subst /,__,$(f)))
 CONFIG_DIR_TARGETS = $(foreach d, $(patsubst config/%,%,$(CONFIG_DIRS)), link-config-dir-$(subst /,__,$(d)))
 ITERM2_TARGETS_Darwin = iterm2
+ITERM2_DYNAMIC_PROFILES_DIR = $(HOME)/Library/Application Support/iTerm2/DynamicProfiles
+ITERM2_DYNAMIC_PROFILES = servak.json
 DIRCOLORS_ZSH_FILE = zsh/ls_colors.zsh
 DIRCOLORS_FISH_FILE = config/fish/conf.d/ls_colors.fish
 DIRCOLORS_CMD = $(shell command -v gdircolors 2>/dev/null || command -v dircolors 2>/dev/null)
@@ -64,15 +66,28 @@ dircolors-generated:
 config: $(CONFIG_FILE_TARGETS) $(CONFIG_DIR_TARGETS) $(ITERM2_TARGETS_$(OS))
 
 # iTerm2（macOSのみ）
-# symlinkではなく、iTerm2純正の「カスタムフォルダから設定を読み込む」機能を使う。
-# config/iterm2/com.googlecode.iterm2.plist を直接読み書きしてもらう。
+# - 一般設定・グローバルキー: symlinkではなく、iTerm2純正の「カスタムフォルダから設定を読み込む」
+#   機能で config/iterm2/com.googlecode.iterm2.plist を直接読み書きしてもらう（反映はiTerm2の再起動時）。
+# - プロファイル（見た目・Leaderキーバインド）: config/iterm2/DynamicProfiles/*.json を
+#   DynamicProfiles フォルダへファイル単位でリンクする（保存すると起動中のiTerm2に即時反映）。
+#   フォルダごとリンクすると zsh/bin/mdview が生成する mdview.json がリポジトリに書き込まれるため。
+# defaults write は値が違うときだけ実行する（起動中のiTerm2に自動保存のきっかけを与えないため）。
 iterm2:
+	@echo "Linking iTerm2 dynamic profiles..."
+	@mkdir -p "$(ITERM2_DYNAMIC_PROFILES_DIR)"
+	@for f in $(ITERM2_DYNAMIC_PROFILES); do \
+		ln -sfn "$(CURRENTDIR)/config/iterm2/DynamicProfiles/$$f" "$(ITERM2_DYNAMIC_PROFILES_DIR)/$$f"; \
+	done
 	@echo "Pointing iTerm2 at $(CURRENTDIR)/config/iterm2 for preferences..."
-	@defaults write com.googlecode.iterm2 PrefsCustomFolder "$(CURRENTDIR)/config/iterm2"
-	@defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
-	@echo "iTerm2を再起動するか、Preferences > General > Preferences の"
-	@echo "'Save Preferences Now' を実行すると config/iterm2/com.googlecode.iterm2.plist から読み込まれます。"
-	@echo "設定変更を自動でこのファイルに書き戻したい場合は 'Save changes automatically' もONにしてください。"
+	@if [ "$$(defaults read com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null)" != "$(CURRENTDIR)/config/iterm2" ]; then \
+		defaults write com.googlecode.iterm2 PrefsCustomFolder "$(CURRENTDIR)/config/iterm2"; \
+	fi
+	@if [ "$$(defaults read com.googlecode.iterm2 LoadPrefsFromCustomFolder 2>/dev/null)" != "1" ]; then \
+		defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true; \
+	fi
+	@echo "Dynamic profiles reload live. com.googlecode.iterm2.plist is read when iTerm2 starts."
+	@echo "If iTerm2 is running, quit it without changing any setting first (Save changes = Automatically"
+	@echo "rewrites the plist from memory), then start it again."
 
 # ========================================
 # 環境準備
@@ -182,6 +197,9 @@ remove-config-files:
 		rm -f $(HOME)/.config/mise/config.toml; \
 		rm -f $(HOME)/.config/ghostty/config; \
 		rm -rf $(HOME)/.config/wezterm; \
+		for f in $(ITERM2_DYNAMIC_PROFILES); do \
+			if [ -L "$(ITERM2_DYNAMIC_PROFILES_DIR)/$$f" ]; then rm -f "$(ITERM2_DYNAMIC_PROFILES_DIR)/$$f"; fi; \
+		done; \
 		defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool false; \
 		defaults delete com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true; \
 	fi
@@ -200,6 +218,9 @@ clean-config-files:
 	@rm -f $(HOME)/.config/ghostty/config
 	@rm -rf $(HOME)/.config/wezterm
 	@if [ "$(OS)" = "Darwin" ]; then \
+		for f in $(ITERM2_DYNAMIC_PROFILES); do \
+			if [ -L "$(ITERM2_DYNAMIC_PROFILES_DIR)/$$f" ]; then rm -f "$(ITERM2_DYNAMIC_PROFILES_DIR)/$$f"; fi; \
+		done; \
 		defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool false; \
 		defaults delete com.googlecode.iterm2 PrefsCustomFolder 2>/dev/null || true; \
 	fi
@@ -287,7 +308,7 @@ help:
 	@echo "  make tmux      - Tmux configuration"
 	@echo "  make git       - Git configuration"
 	@echo "  make config    - Config files (starship, mise, fish, iTerm2)"
-	@echo "  make iterm2    - Point iTerm2 at config/iterm2 for preferences (macOS only)"
+	@echo "  make iterm2    - Point iTerm2 at config/iterm2 and link dynamic profiles (macOS only)"
 	@echo "  make dircolors-generated - Generate LS_COLORS files for zsh and fish"
 	@echo ""
 	@echo "Environment setup:"

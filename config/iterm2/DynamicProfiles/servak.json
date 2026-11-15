@@ -1,0 +1,246 @@
+{
+  "Profiles": [
+    {
+      "Name": "servak",
+      "Guid": "servak-default",
+      "Dynamic Profile Parent GUID": "CD643EE4-9ACF-4392-A657-017ED3F7F05C",
+      "Normal Font": "SauceCodeProNFM 14",
+      "Use Non-ASCII Font": true,
+      "Non Ascii Font": "LINESeedJP-Regular 14",
+      "Columns": 140,
+      "Rows": 36,
+      "Unlimited Scrollback": true,
+      "Terminal Type": "xterm-256color",
+      "Custom Directory": "Recycle",
+      "Option Key Sends": 0,
+      "Right Option Key Sends": 2,
+      "Use Separate Colors for Light and Dark Mode": false,
+      "Background Color": {
+        "Red Component": 0.16862745098039217,
+        "Green Component": 0.16862745098039217,
+        "Blue Component": 0.16862745098039217,
+        "Alpha Component": 1,
+        "Color Space": "sRGB"
+      },
+      "Foreground Color": {
+        "Red Component": 0.8156862745098039,
+        "Green Component": 0.8156862745098039,
+        "Blue Component": 0.8156862745098039,
+        "Alpha Component": 1,
+        "Color Space": "sRGB"
+      },
+      "Cursor Color": {
+        "Red Component": 0.5019607843137255,
+        "Green Component": 0.9215686274509803,
+        "Blue Component": 0.8745098039215686,
+        "Alpha Component": 1,
+        "Color Space": "sRGB"
+      },
+      "Cursor Text Color": {
+        "Red Component": 0.0,
+        "Green Component": 0.0,
+        "Blue Component": 0.0,
+        "Alpha Component": 1,
+        "Color Space": "sRGB"
+      },
+      "Selection Color": {
+        "Red Component": 0.9411764705882353,
+        "Green Component": 0.9019607843137255,
+        "Blue Component": 0.5490196078431373,
+        "Alpha Component": 1,
+        "Color Space": "sRGB"
+      },
+      "Selected Text Color": {
+        "Red Component": 0.06666666666666667,
+        "Green Component": 0.06666666666666667,
+        "Blue Component": 0.06666666666666667,
+        "Alpha Component": 1,
+        "Color Space": "sRGB"
+      },
+      "Keyboard Map": {
+        "0x74-0x1040000-0x11-0x1": {
+          "Action": 11,
+          "Text": "0x14",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x63-0x1000000-0x8-0x1": {
+          "Action": 25,
+          "Text": "New Tab\nNew Tab",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6e-0x1000000-0x2d-0x1": {
+          "Action": 0,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6e-0x1040000-0x2d-0x1": {
+          "Action": 0,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x70-0x1000000-0x23-0x1": {
+          "Action": 2,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x70-0x1040000-0x23-0x1": {
+          "Action": 2,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x72-0x1000000-0xf-0x1": {
+          "Action": 25,
+          "Text": "Edit Tab Title\nEdit Tab Title",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x73-0x1000000-0x1-0x1": {
+          "Action": 25,
+          "Text": "Split Horizontally with Current Profile\nSplit Horizontally with Current Profile",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x76-0x1000000-0x9-0x1": {
+          "Action": 25,
+          "Text": "Split Vertically with Current Profile\nSplit Vertically with Current Profile",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x7a-0x1000000-0x6-0x1": {
+          "Action": 25,
+          "Text": "Maximize Active Pane\nMaximize Active Pane",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x78-0x1000000-0x7-0x1": {
+          "Action": 25,
+          "Text": "Close\nClose",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x68-0x1000000-0x4-0x1": {
+          "Action": 18,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6a-0x1000000-0x26-0x1": {
+          "Action": 21,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6b-0x1000000-0x28-0x1": {
+          "Action": 20,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6c-0x1000000-0x25-0x1": {
+          "Action": 19,
+          "Text": "",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x68-0x1040000-0x4-0x1": {
+          "Action": 25,
+          "Text": "Move Divider Left\nResize Split Pane.Move Divider Left",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6a-0x1040000-0x26-0x1": {
+          "Action": 25,
+          "Text": "Move Divider Down\nResize Split Pane.Move Divider Down",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6b-0x1040000-0x28-0x1": {
+          "Action": 25,
+          "Text": "Move Divider Up\nResize Split Pane.Move Divider Up",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x6c-0x1040000-0x25-0x1": {
+          "Action": 25,
+          "Text": "Move Divider Right\nResize Split Pane.Move Divider Right",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x5b-0x1000000-0x21-0x1": {
+          "Action": 25,
+          "Text": "Copy Mode\nCopy Mode",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x58-0x60000-0x7-0x1": {
+          "Action": 25,
+          "Text": "Copy Mode\nCopy Mode",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x79-0x1000000-0x10-0x1": {
+          "Action": 66,
+          "Text": "[{\"Action\":25,\"Text\":\"Select Output of Last Command\\nSelect Output of Last Command\",\"Version\":2,\"Apply Mode\":0,\"Escaping\":2},{\"Action\":69,\"Text\":\"\",\"Version\":2,\"Apply Mode\":0,\"Escaping\":2}]",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x3f-0x1020000-0x2c-0x1": {
+          "Action": 25,
+          "Text": "Open Quickly\nOpen Quickly",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x65-0x1000000-0xe-0x1": {
+          "Action": 25,
+          "Text": "Preferences…\nPreferences...",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x5b-0x80000-0x21-0x1": {
+          "Action": 25,
+          "Text": "Previous Mark\nMarks and Annotations.Previous Mark",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        },
+        "0x5d-0x80000-0x1e-0x1": {
+          "Action": 25,
+          "Text": "Next Mark\nMarks and Annotations.Next Mark",
+          "Version": 2,
+          "Apply Mode": 0,
+          "Escaping": 2
+        }
+      }
+    }
+  ]
+}
