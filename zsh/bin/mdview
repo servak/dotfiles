@@ -8,21 +8,32 @@
   ページ内の markdown-it / mermaid.js で描画する。ライブラリは CDN から読む）
 - それ以外: glow のページャで開く
 
+iTerm2 では mdview はペインに表示されたままキーを待つ。
+    q / Ctrl-C  表示も閉じて終わる
+    z           表示を残して終わる（以後は更新しない）
+    e           $EDITOR で開く。閉じるとまたキー待ちに戻る
+
 iTerm2 のブラウザペインは file:// のページから隣のファイルを fetch できないが、
 <script src> での読み込みはできる。そこで Markdown を data.js に書き出し、
-ページが1秒ごとに読み直す。data.js の書き直しは裏で動く監視プロセスが行い、
-表示しているペインが閉じられたら後片付けして終了する。
+ページが1秒ごとに読み直す。data.js を書き直すのは mdview 自身だけで、
+裏に残るプロセスは作らない。
 """
 
 import hashlib
 import json
 import os
+import select
+import shlex
 import shutil
+import signal
 import subprocess
 import sys
+import termios
 import time
+import tty
 
 CACHE_DIR = os.path.expanduser("~/Library/Caches/mdview")
+VIEWS_DIR = os.path.join(CACHE_DIR, "views")
 DYNAMIC_PROFILE_PATH = os.path.expanduser(
     "~/Library/Application Support/iTerm2/DynamicProfiles/mdview.json"
 )
@@ -30,6 +41,8 @@ PROFILE_NAME = "mdview"
 PROFILE_GUID = "dotfiles-mdview-browser"
 POLL_INTERVAL_SEC = 0.5
 SESSION_CHECK_INTERVAL_SEC = 5
+# z で残した表示のファイルは、次に mdview を開いたときにこれより古ければ消す
+STALE_VIEW_SEC = 24 * 60 * 60
 
 # iTerm2 のプロファイルは開く URL が固定なので、いったん launch.html を開き、
 # launch.js に書かれた表示ページへ移動する。
@@ -55,11 +68,9 @@ VIEW_HTML = """<!doctype html>
   body { margin: 0; background: #fff; }
   .markdown-body { box-sizing: border-box; max-width: 980px; margin: 0 auto; padding: 24px 32px; }
   .markdown-body pre.mermaid { background: transparent; text-align: center; }
-  #mdview-error { display: none; color: #b00; padding: 8px 32px; }
 </style>
 </head>
 <body>
-<div id="mdview-error"></div>
 <article id="content" class="markdown-body"></article>
 <script>
 const md = markdownit({ html: false, linkify: true });
@@ -74,6 +85,7 @@ md.renderer.rules.fence = (tokens, idx, options, env, self) => {
 mermaid.initialize({ startOnLoad: false, theme: "default" });
 
 let rev = null;
+let timer = null;
 
 async function render(data) {
   document.title = data.title;
@@ -95,22 +107,26 @@ function poll() {
   s.onload = () => {
     s.remove();
     const data = window.__mdview;
-    if (data && data.rev !== rev) {
+    if (!data) return;
+    if (data.rev !== rev) {
       rev = data.rev;
       render(data);
     }
+    // mdview が終わったら（z で残したとき）読み直しもやめる
+    if (data.final) clearInterval(timer);
   };
   s.onerror = () => s.remove();
   document.head.appendChild(s);
 }
 
 poll();
-setInterval(poll, 1000);
+timer = setInterval(poll, 1000);
 </script>
 </body>
 </html>
 """
 
+# 今のペインを右に分割してブラウザペインを開き、そのセッション ID を返す
 SPLIT_SCRIPT = """
 on run argv
   set targetId to item 1 of argv
@@ -138,15 +154,36 @@ on run argv
   tell application "iTerm2"
     repeat with w in windows
       repeat with t in tabs of w
-        repeat with s in sessions of t
-          if id of s is targetId then return "yes"
-        end repeat
+        if (id of sessions of t) contains targetId then return "yes"
       end repeat
     end repeat
   end tell
   return "no"
 end run
 """
+
+CLOSE_SESSION_SCRIPT = """
+on run argv
+  set targetId to item 1 of argv
+  if application "iTerm2" is not running then return
+  tell application "iTerm2"
+    repeat with w in windows
+      repeat with t in tabs of w
+        if (id of sessions of t) contains targetId then
+          tell (session id targetId of t) to close
+          return
+        end if
+      end repeat
+    end repeat
+  end tell
+end run
+"""
+
+KEY_HELP = "q:閉じる  z:残して終了  e:編集"
+
+
+class Hangup(Exception):
+    """端末が閉じられた（SIGHUP / SIGTERM を受けた）ことを表す。"""
 
 
 def write_atomic(path, content):
@@ -155,21 +192,6 @@ def write_atomic(path, content):
     with open(tmp_path, "w", encoding="utf-8") as f:
         f.write(content)
     os.replace(tmp_path, path)
-
-
-def write_data_js(view_dir, md_path):
-    """Markdown を読み、ページが読み込む data.js を書き出す。"""
-    with open(md_path, encoding="utf-8", errors="replace") as f:
-        text = f.read()
-    data = {
-        "rev": hashlib.sha1(text.encode("utf-8")).hexdigest(),
-        "title": os.path.basename(md_path),
-        "text": text,
-    }
-    write_atomic(
-        os.path.join(view_dir, "data.js"),
-        "window.__mdview = " + json.dumps(data, ensure_ascii=False) + ";\n",
-    )
 
 
 def ensure_dynamic_profile():
@@ -196,6 +218,22 @@ def ensure_dynamic_profile():
     return True
 
 
+def remove_stale_views():
+    """z で残した古い表示のファイルを消す。"""
+    try:
+        names = os.listdir(VIEWS_DIR)
+    except FileNotFoundError:
+        return
+    now = time.time()
+    for name in names:
+        path = os.path.join(VIEWS_DIR, name)
+        try:
+            if now - os.stat(path).st_mtime > STALE_VIEW_SEC:
+                shutil.rmtree(path, ignore_errors=True)
+        except FileNotFoundError:
+            pass
+
+
 def osascript(script, *args):
     """AppleScript を実行して標準出力を返す。"""
     result = subprocess.run(
@@ -208,80 +246,201 @@ def osascript(script, *args):
     return result.stdout.strip()
 
 
-def session_exists(session_id):
-    """iTerm2 にそのセッションがまだあるか調べる。"""
+class View:
+    """ブラウザペイン1つ分の表示と、その元になる Markdown を受け持つ。"""
+
+    def __init__(self, md_path):
+        """表示用のファイルを置くディレクトリを決める。"""
+        self.md_path = md_path
+        view_id = hashlib.sha1((md_path + str(time.time())).encode()).hexdigest()[:12]
+        self.view_id = view_id
+        self.dir = os.path.join(VIEWS_DIR, view_id)
+        self.session_id = None
+        self.last_mtime = None
+        self.revision = 0
+        self.updated_at = None
+
+    def prepare(self):
+        """表示ページと最初の data.js を書き出す。"""
+        os.makedirs(self.dir, exist_ok=True)
+        write_atomic(os.path.join(CACHE_DIR, "launch.html"), LAUNCH_HTML)
+        write_atomic(os.path.join(self.dir, "index.html"), VIEW_HTML)
+        self.refresh()
+        write_atomic(
+            os.path.join(CACHE_DIR, "launch.js"),
+            "window.__mdviewNext = "
+            + json.dumps("views/%s/index.html" % self.view_id)
+            + ";\n",
+        )
+
+    def write_data(self, final=False):
+        """Markdown を読み、ページが読み込む data.js を書き出す。"""
+        with open(self.md_path, encoding="utf-8", errors="replace") as f:
+            text = f.read()
+        data = {
+            "rev": hashlib.sha1(text.encode("utf-8")).hexdigest(),
+            "title": os.path.basename(self.md_path),
+            "text": text,
+            "final": final,
+        }
+        write_atomic(
+            os.path.join(self.dir, "data.js"),
+            "window.__mdview = " + json.dumps(data, ensure_ascii=False) + ";\n",
+        )
+
+    def refresh(self):
+        """Markdown が保存されていたら data.js を書き直す。書き直したら True。"""
+        try:
+            mtime = os.stat(self.md_path).st_mtime_ns
+        except FileNotFoundError:
+            # エディタが保存時にファイルを置き換える間は一瞬消える
+            return False
+        if mtime == self.last_mtime:
+            return False
+        self.last_mtime = mtime
+        self.write_data()
+        self.revision += 1
+        self.updated_at = time.strftime("%H:%M:%S")
+        return True
+
+    def open_pane(self, session_id):
+        """iTerm2 のペインを右に分割して表示する。"""
+        if ensure_dynamic_profile():
+            # iTerm2 が Dynamic Profile を読み込むまで待つ
+            time.sleep(2)
+        self.session_id = osascript(SPLIT_SCRIPT, session_id)
+
+    def pane_exists(self):
+        """表示しているペインがまだあるか調べる。"""
+        try:
+            return osascript(SESSION_EXISTS_SCRIPT, self.session_id) == "yes"
+        except subprocess.CalledProcessError:
+            return False
+
+    def close(self):
+        """ペインを閉じて表示用のファイルを消す。"""
+        if self.session_id:
+            try:
+                osascript(CLOSE_SESSION_SCRIPT, self.session_id)
+            except subprocess.CalledProcessError:
+                pass
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def detach(self):
+        """表示を残し、ページの読み直しを止める。"""
+        try:
+            self.write_data(final=True)
+        except FileNotFoundError:
+            pass
+
+
+def show_status(view):
+    """今のペインに状態とキーの説明を1行で出す。"""
+    line = "mdview: %s  版 %d (%s)  %s" % (
+        os.path.basename(view.md_path),
+        view.revision,
+        view.updated_at or "-",
+        KEY_HELP,
+    )
+    sys.stdout.write("\r\033[K" + line)
+    sys.stdout.flush()
+
+
+def clear_status():
+    """状態の行を消す。"""
+    sys.stdout.write("\r\033[K")
+    sys.stdout.flush()
+
+
+def run_editor(view):
+    """$EDITOR で Markdown を開き、閉じるまで保存のたびに表示を更新する。"""
+    editor = shlex.split(os.environ.get("EDITOR") or "vim")
+    # Ctrl-C はエディタに任せ、mdview は止めない。子プロセスには既定の動作に戻して渡す
+    previous = signal.signal(signal.SIGINT, signal.SIG_IGN)
     try:
-        return osascript(SESSION_EXISTS_SCRIPT, session_id) == "yes"
-    except subprocess.CalledProcessError:
-        return False
+        proc = subprocess.Popen(
+            editor + [view.md_path],
+            preexec_fn=lambda: signal.signal(signal.SIGINT, signal.SIG_DFL),
+        )
+        while proc.poll() is None:
+            view.refresh()
+            time.sleep(POLL_INTERVAL_SEC)
+        view.refresh()
+    except FileNotFoundError:
+        sys.stdout.write("mdview: エディタを起動できませんでした: %s\n" % editor[0])
+    finally:
+        signal.signal(signal.SIGINT, previous)
 
 
-def watch(view_dir, md_path, session_id):
-    """保存を監視して data.js を書き直し、ペインが閉じたら片付けて終わる。"""
-    last_mtime = None
+def wait_keys(view):
+    """キーを待ちながら表示を更新する。押されたキー（q か z）を返す。"""
+    fd = sys.stdin.fileno()
+    saved = termios.tcgetattr(fd)
     last_session_check = time.monotonic()
     try:
+        tty.setcbreak(fd)
+        show_status(view)
         while True:
-            try:
-                mtime = os.stat(md_path).st_mtime_ns
-                if mtime != last_mtime:
-                    last_mtime = mtime
-                    write_data_js(view_dir, md_path)
-            except FileNotFoundError:
-                # エディタが保存時にファイルを置き換える間は一瞬消える
-                pass
+            ready, _, _ = select.select([fd], [], [], POLL_INTERVAL_SEC)
+            if ready:
+                key = os.read(fd, 1).decode(errors="ignore")
+                if key in ("q", "\x03"):
+                    return "q"
+                if key == "z":
+                    return "z"
+                if key == "e":
+                    termios.tcsetattr(fd, termios.TCSADRAIN, saved)
+                    clear_status()
+                    run_editor(view)
+                    tty.setcbreak(fd)
+                    last_session_check = time.monotonic()
+                show_status(view)
+                continue
+            if view.refresh():
+                show_status(view)
             if time.monotonic() - last_session_check >= SESSION_CHECK_INTERVAL_SEC:
                 last_session_check = time.monotonic()
-                if not session_exists(session_id):
-                    return
-            time.sleep(POLL_INTERVAL_SEC)
+                if not view.pane_exists():
+                    # 表示のペインが手で閉じられた
+                    return "closed"
     finally:
-        shutil.rmtree(view_dir, ignore_errors=True)
+        termios.tcsetattr(fd, termios.TCSADRAIN, saved)
+        clear_status()
 
 
-def daemonize():
-    """端末から切り離した子プロセスにする。親プロセスでは False を返す。"""
-    if os.fork() > 0:
-        return False
-    os.setsid()
-    if os.fork() > 0:
-        os._exit(0)
-    devnull = os.open(os.devnull, os.O_RDWR)
-    for fd in (0, 1, 2):
-        os.dup2(devnull, fd)
-    return True
+def raise_hangup(signum, frame):
+    """端末が閉じられたら後片付けへ進む。"""
+    raise Hangup()
 
 
 def open_in_iterm(md_path):
-    """今の iTerm2 ペインを右に分割して表示し、裏で保存の監視を始める。"""
+    """今の iTerm2 ペインを右に分割して表示し、キーを待つ。"""
+    if not sys.stdin.isatty():
+        print("mdview: 端末から実行してください", file=sys.stderr)
+        return 1
     session_id = os.environ["ITERM_SESSION_ID"].split(":", 1)[-1]
-    view_id = hashlib.sha1((md_path + str(time.time())).encode()).hexdigest()[:12]
-    view_dir = os.path.join(CACHE_DIR, "views", view_id)
-    os.makedirs(view_dir, exist_ok=True)
-
-    write_atomic(os.path.join(CACHE_DIR, "launch.html"), LAUNCH_HTML)
-    write_atomic(os.path.join(view_dir, "index.html"), VIEW_HTML)
-    write_data_js(view_dir, md_path)
-    write_atomic(
-        os.path.join(CACHE_DIR, "launch.js"),
-        "window.__mdviewNext = " + json.dumps("views/%s/index.html" % view_id) + ";\n",
-    )
-    if ensure_dynamic_profile():
-        # iTerm2 が Dynamic Profile を読み込むまで待つ
-        time.sleep(2)
-
+    remove_stale_views()
+    view = View(md_path)
+    view.prepare()
     try:
-        view_session_id = osascript(SPLIT_SCRIPT, session_id)
+        view.open_pane(session_id)
     except subprocess.CalledProcessError as e:
-        shutil.rmtree(view_dir, ignore_errors=True)
+        view.close()
         print("mdview: iTerm2 のペインを開けませんでした: " + e.stderr.strip(), file=sys.stderr)
         return 1
 
-    if daemonize():
-        try:
-            watch(view_dir, md_path, view_session_id)
-        finally:
-            os._exit(0)
+    signal.signal(signal.SIGHUP, raise_hangup)
+    signal.signal(signal.SIGTERM, raise_hangup)
+    action = "q"
+    try:
+        action = wait_keys(view)
+    except (KeyboardInterrupt, Hangup):
+        action = "q"
+    finally:
+        if action == "z":
+            view.detach()
+        else:
+            view.close()
     return 0
 
 
