@@ -3,10 +3,12 @@
     {
       "Name": "servak",
       "Guid": "servak-default",
+      "Rewritable": true,
       "Dynamic Profile Parent GUID": "CD643EE4-9ACF-4392-A657-017ED3F7F05C",
       "Normal Font": "SauceCodeProNFM 14",
       "Use Non-ASCII Font": true,
       "Non Ascii Font": "LINESeedJP-Regular 14",
+      "Special Font Config": "{\"entries\":[{\"start\":9211,\"count\":4,\"fontName\":\"SymbolsNF\"},{\"start\":9829,\"count\":1,\"fontName\":\"SymbolsNF\"},{\"start\":9889,\"count\":1,\"fontName\":\"SymbolsNF\"},{\"start\":10092,\"count\":6,\"fontName\":\"SymbolsNF\"},{\"start\":57344,\"count\":11,\"fontName\":\"SymbolsNF\"},{\"start\":57504,\"count\":4,\"fontName\":\"SymbolsNF\"},{\"start\":57520,\"fontName\":\"SymbolsNF\",\"count\":25},{\"start\":57546,\"fontName\":\"SymbolsNF\",\"count\":1},{\"start\":57548,\"fontName\":\"SymbolsNF\",\"count\":7},{\"start\":57556,\"fontName\":\"SymbolsNF\",\"count\":1},{\"start\":57558,\"fontName\":\"SymbolsNF\",\"count\":2},{\"start\":57856,\"fontName\":\"SymbolsNF\",\"count\":170},{\"fontName\":\"SymbolsNF\",\"count\":228,\"start\":58112},{\"fontName\":\"SymbolsNF\",\"count\":191,\"start\":58874},{\"fontName\":\"SymbolsNF\",\"count\":496,\"start\":59136},{\"fontName\":\"SymbolsNF\",\"count\":447,\"start\":60000},{\"fontName\":\"SymbolsNF\",\"count\":719,\"start\":60672},{\"fontName\":\"SymbolsNF\",\"count\":898,\"start\":61440},{\"start\":62464,\"count\":308,\"fontName\":\"SymbolsNF\"},{\"start\":983041,\"count\":6896,\"fontName\":\"SymbolsNF\"}],\"version\":2}",
       "Columns": 140,
       "Rows": 36,
       "Unlimited Scrollback": true,
