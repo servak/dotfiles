@@ -22,25 +22,3 @@ zstyle ':completion:*:options' description 'yes'
 # したがって，すべての マッチ種別を別々に表示させたいなら以下のようにする
 zstyle ':completion:*' group-name ''
 
-# fzf-tab: Tab 補完の候補を fzf で選ぶ。compinit の後、zsh-syntax-highlighting などの
-# ウィジェットを包むプラグイン（zinit の wait で後から読む）より前に読む必要がある。
-# fzf がない環境（Linux サーバーなど）では読まず、これまでの menu select のまま。
-if (( $+commands[fzf] )); then
-    zinit light Aloxaf/fzf-tab
-    # 候補の一覧は fzf-tab が出すので zsh 標準のメニューは使わない
-    zstyle ':completion:*' menu no
-    # fzf-tab はグループ名を [%d] の形で受け取る（色付きの見出しだと崩れる）
-    zstyle ':completion:*:descriptions' format '[%d]'
-    # 見た目は FZF_DEFAULT_OPTS（ghq などと同じ枠と色）に合わせる
-    zstyle ':fzf-tab:*' use-fzf-default-opts yes
-    # < と > でグループ（ファイル / ディレクトリ / オプションなど）を切り替える
-    zstyle ':fzf-tab:*' switch-group '<' '>'
-    # ディレクトリを補完するときは中身をプレビューする
-    zstyle ':fzf-tab:complete:(cd|pushd|eza|ls):*' fzf-preview \
-        'if [ -d $realpath ]; then eza -1 --icons --group-directories-first --color=always $realpath; else bat --color=always --style=numbers --line-range=:100 $realpath 2>/dev/null; fi'
-    zstyle ':fzf-tab:complete:(v|vi|vim|cat|bat|less):*' fzf-preview \
-        'if [ -d $realpath ]; then eza -1 --icons --group-directories-first --color=always $realpath; else bat --color=always --style=numbers --line-range=:100 $realpath 2>/dev/null; fi'
-    # git checkout / switch はブランチの最近のコミットを出す
-    zstyle ':fzf-tab:complete:git-(checkout|switch):*' fzf-preview \
-        'git log --oneline --color=always -15 $word 2>/dev/null'
-fi

@@ -90,6 +90,8 @@ abbr --erase gp >/dev/null 2>&1
 abbr --add --position command gp 'git pull --ff-only'
 abbr --erase k >/dev/null 2>&1
 abbr --add --position command k kubectl
+abbr --erase v >/dev/null 2>&1
+abbr --add --position command v vim
 
 abbr --erase T >/dev/null 2>&1
 abbr --add --position anywhere T '| tail'

@@ -16,6 +16,7 @@ zinit load "olets/zsh-abbr"
 
 # --- command position（コマンド先頭でのみ展開）-------------------------
 abbr -S -q g='git'
+abbr -S -q v='vim'
 abbr -S -q gs='git status'
 abbr -S -q gd='git diff'
 abbr -S -q gdc='git diff --cached'
