@@ -36,6 +36,8 @@ zle -N filter-cmdsearch-history
 bindkey '^r' filter-cmdsearch-history
 zle -N filter-src
 bindkey "^[g" filter-src
+zle -N filter-worktree
+bindkey '^[w' filter-worktree
 zle -N vim-file-search
 bindkey '^[v' vim-file-search
 zle -N filter-multi-ssh

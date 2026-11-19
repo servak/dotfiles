@@ -3,9 +3,13 @@ function __ghq_cd
         return 1
     end
 
-    set -l selected_dir (ghq list --full-path | fzf --query (commandline))
-    if test -n "$selected_dir"
-        cd "$selected_dir"
+    set -l selected (ghq list | fzf \
+        --query (commandline) \
+        --border-label ' ghq ' \
+        --preview 'ghq-preview {}' \
+        --preview-window 'right,55%,border-left,<90(down,50%,border-top)')
+    if test -n "$selected"
+        cd (ghq root)/$selected
         commandline --replace ''
     end
 

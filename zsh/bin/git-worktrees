@@ -1,0 +1,21 @@
+#!/bin/sh
+# 今いるリポジトリの worktree を fzf 用に1行ずつ出す。
+#   <印> <ブランチ>\t<メインからの相対パス>\t<絶対パス>
+# 今いる worktree には ● を付ける。
+top=$(git rev-parse --show-toplevel 2>/dev/null) || exit 1
+
+git worktree list --porcelain | awk -v top="$top" '
+    function flush() {
+        if (path == "") return
+        if (main == "") main = path
+        rel = (path == main) ? "." : substr(path, length(main) + 2)
+        if (index(path, main "/") != 1 && path != main) rel = path
+        mark = (path == top) ? "\033[38;5;116m●\033[0m" : " "
+        printf "%s %s\t\033[38;5;245m%s\033[0m\t%s\n", mark, branch, rel, path
+        path = ""; branch = ""
+    }
+    /^worktree / { flush(); path = substr($0, 10) }
+    /^branch /   { branch = substr($0, 8); sub("^refs/heads/", "", branch) }
+    /^detached/  { branch = "(detached)" }
+    END { flush() }
+'

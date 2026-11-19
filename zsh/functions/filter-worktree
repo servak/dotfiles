@@ -1,0 +1,18 @@
+# 今いるリポジトリの worktree を fzf で選んで cd する（Meta-w）
+local lines=$(git-worktrees)
+if [ -z "$lines" ]; then
+    zle -M "git のリポジトリではありません"
+    return
+fi
+local selected=$(print -r -- "$lines" | $FZF $FZF_OPTS \
+    --ansi \
+    --delimiter $'\t' --with-nth 1,2 --accept-nth 3 \
+    --query "$LBUFFER" \
+    --border-label ' worktree ' \
+    --preview 'ghq-preview {3}' \
+    --preview-window 'right,55%,border-left,<90(down,50%,border-top)')
+if [ -n "$selected" ]; then
+    BUFFER="cd ${(q)selected}"
+    zle accept-line
+fi
+zle clear-screen

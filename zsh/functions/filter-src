@@ -1,6 +1,11 @@
-local selected_dir=$(ghq list --full-path | $FZF $FZF_OPTS --query "$LBUFFER")
-if [ -n "$selected_dir" ]; then
-    BUFFER="cd ${selected_dir}"
+# ghq のリポジトリを fzf で選んで cd する（Meta-g）
+local selected=$(ghq list | $FZF $FZF_OPTS \
+    --query "$LBUFFER" \
+    --border-label ' ghq ' \
+    --preview 'ghq-preview {}' \
+    --preview-window 'right,55%,border-left,<90(down,50%,border-top)')
+if [ -n "$selected" ]; then
+    BUFFER="cd $(ghq root)/${selected}"
     zle accept-line
 fi
 zle clear-screen

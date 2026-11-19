@@ -8,6 +8,7 @@ function fish_user_key_bindings
 
     bind \cj __smart_enter
     bind \eg __ghq_cd
+    bind \ew __worktree_cd
     bind \ev __vim_file_search
     bind \eu __cdup
 end

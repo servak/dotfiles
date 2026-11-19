@@ -1,0 +1,29 @@
+#!/bin/sh
+# ghq のリポジトリや worktree を fzf で選ぶときのプレビュー。
+#   ghq-preview <ghq list で出るパス | 絶対パス>
+# ブランチ、最近のコミット、変更中のファイルを出す。git でなければファイル一覧を出す。
+case "$1" in
+    /*) dir="$1" ;;
+    *) dir="$(ghq root)/$1" ;;
+esac
+cd "$dir" 2>/dev/null || exit 0
+
+if ! git rev-parse --git-dir >/dev/null 2>&1; then
+    if command -v eza >/dev/null 2>&1; then
+        eza -1 --icons --group-directories-first --color=always
+    else
+        ls -1
+    fi
+    exit 0
+fi
+
+branch=$(git branch --show-current 2>/dev/null)
+printf '\033[38;5;116m%s\033[0m\n' "${branch:-detached}"
+git log -10 --color=always --format='%C(yellow)%h%C(reset) %s %C(240)%cr%C(reset)' 2>/dev/null
+
+changes=$(git -c color.status=always status --short 2>/dev/null)
+if [ -n "$changes" ]; then
+    echo
+    # 先頭の空白（ステージしていない変更の印）は削る。ステージ済みは緑、未ステージは赤で見分けられる
+    printf '%s\n' "$changes" | head -n 30 | sed 's/^ //'
+fi
