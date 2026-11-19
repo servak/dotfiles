@@ -44,5 +44,3 @@ zinit load "zsh-users/zsh-completions"
 zinit ice wait lucid
 zinit load "zsh-users/zsh-syntax-highlighting"
 
-zinit ice wait lucid
-zinit load "zsh-users/zsh-autosuggestions"

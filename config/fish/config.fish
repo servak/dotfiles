@@ -36,6 +36,11 @@ if command -sq mise
     mise activate fish | source
 end
 
+# 履歴の検索（Ctrl-R）は atuin。↑キーは fish の標準のまま
+if command -sq atuin
+    atuin init fish --disable-up-arrow | source
+end
+
 # Completion pager colors: make entries, descriptions, and selection easier to distinguish.
 set -g fish_pager_color_completion brwhite
 set -g fish_pager_color_description brblack --italics

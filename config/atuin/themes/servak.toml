@@ -1,0 +1,23 @@
+# atuin の配色。iTerm2 / fzf の配色（文字 #d0d0d0、アクセント #80ebdf）に合わせる
+[theme]
+name = "servak"
+
+[colors]
+# 見出しと、選んでいる行のコマンド
+Title = "#80ebdf"
+Important = "#80ebdf"
+# 何分前、ヘルプ、補足は目立たない灰色
+Annotation = "#7a7a7a"
+Guidance = "#7a7a7a"
+Muted = "#5a5a5a"
+# 成功・注意・失敗
+AlertInfo = "#7fbf7f"
+AlertWarn = "#f0e68c"
+AlertError = "#d0716f"
+# コマンドの色付け
+SyntaxCommand = "#80ebdf"
+SyntaxFlag = "#f0e68c"
+SyntaxString = "#a8d08d"
+SyntaxVariable = "#d7ba7d"
+SyntaxOperator = "#a0a0a0"
+SyntaxComment = "#5a5a5a"

@@ -1,0 +1,40 @@
+# atuin の設定（履歴の検索。Ctrl-R で開く）
+# 履歴は手元の SQLite（~/.local/share/atuin/history.db）だけに残し、同期はしない。
+
+## 同期・ネットワーク
+# サーバーとは同期しない（atuin login していなければ元々送られないが、明示的に止めておく）
+auto_sync = false
+# 新しいバージョンの確認でネットに出ない
+update_check = false
+
+## 検索
+# 起動したときの絞り込み。Ctrl-R を押し直すと global / host / session / directory を切り替えられる
+filter_mode = "global"
+search_mode = "fuzzy"
+# 選んだコマンドはすぐ実行せず、入力欄に入れる（これまでの fzf の Ctrl-R と同じ）
+enter_accept = false
+
+## 見た目（fzf の見た目に寄せる）
+style = "compact"
+inline_height = 20
+invert = false
+show_help = true
+show_tabs = false
+# 長いコマンドは下にコマンド全体を出す
+show_preview = true
+max_preview_height = 4
+
+## 記録しないもの
+# 先頭が空白のコマンドは残さない（zsh の HIST_IGNORE_SPACE と同じ）
+history_filter = [
+  "^ ",
+]
+# AWS の鍵や GitHub のトークンなど、よくある秘密情報の形は記録しない（初期値のまま明示）
+secrets_filter = true
+
+[sync]
+records = false
+
+[theme]
+# config/atuin/themes/servak.toml
+name = "servak"

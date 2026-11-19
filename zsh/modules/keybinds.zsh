@@ -32,6 +32,12 @@ zle -N do_enter
 bindkey '^j' do_enter
 zle -N filter-cmdsearch-history
 bindkey '^r' filter-cmdsearch-history
+# atuin があれば Ctrl-R は atuin に任せ、fzf の履歴＋スニペット検索は Meta-r に移す。
+# ↑キーは今の history-beginning-search のまま（--disable-up-arrow）
+if (( $+commands[atuin] )); then
+    eval "$(atuin init zsh --disable-up-arrow)"
+    bindkey '^[r' filter-cmdsearch-history
+fi
 zle -N filter-src
 bindkey "^[g" filter-src
 zle -N filter-worktree
