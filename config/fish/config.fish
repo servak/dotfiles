@@ -24,7 +24,9 @@ case Darwin
     alias sed='gsed'
     alias ghp='gh pr create --web'
     alias ls='gls -F'
-    alias ll='ls -ltrF'
+    # ll は eza。ファイル名の色は LS_COLORS、それ以外の列は EZA_COLORS で灰色に抑える（zsh_Darwin と同じ）
+    set -gx EZA_COLORS 'ur=38;5;245:uw=38;5;245:ux=38;5;245:ue=38;5;245:gr=38;5;245:gw=38;5;245:gx=38;5;245:tr=38;5;245:tw=38;5;245:tx=38;5;245:su=38;5;245:sf=38;5;245:xa=38;5;245:sn=38;5;252:sb=38;5;245:uu=38;5;245:un=38;5;245:gu=38;5;245:gn=38;5;245:da=38;5;245:lc=38;5;245:lm=38;5;245:hd=38;5;245:ga=38;2;127;191;127:gm=38;2;240;230;140:gd=38;2;208;113;111:gv=38;2;127;191;255:gt=38;2;180;160;230:gi=38;5;240'
+    alias ll="eza -lF --sort=modified --git --icons --time-style='+%Y-%m-%d %H:%M'"
     alias la='ll -a'
     alias tree='eza --tree --color=auto'
     alias exa='eza --group-directories-first --color=auto'

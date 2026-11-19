@@ -1,4 +1,11 @@
-local ls_result="$(ll)"
+# eza があれば ll と同じ表示（色とアイコン付き）。$(...) の中は端末ではないので、
+# 色とアイコンは always で明示し、パスも . を渡す（eza は端末でない標準入力からパスを読もうとするため）
+local ls_result
+if (( $+commands[eza] )); then
+    ls_result="$(eza -lF --sort=modified --git --icons=always --color=always --time-style='+%Y-%m-%d %H:%M' . </dev/null)"
+else
+    ls_result="$(ll)"
+fi
 local ls_lines=$(echo "$ls_result" | wc -l | tr -d ' ')
 
 if [ $ls_lines -gt 30 ]; then
@@ -10,7 +17,8 @@ else
     echo "$ls_result"
 fi
 
-if [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = 'true' ]; then
+# eza はファイルごとの git の状態を列で出すので、git status は eza がないときだけ出す
+if (( ! $+commands[eza] )) && [ "$(git rev-parse --is-inside-work-tree 2> /dev/null)" = 'true' ]; then
     local git_status=""
     git_status=$(git status -s)
     if [ "$git_status" != "" ]; then
