@@ -12,6 +12,7 @@
       "Unlimited Scrollback": true,
       "Terminal Type": "xterm-256color",
       "Custom Directory": "Recycle",
+      "Title Components": 4,
       "Option Key Sends": 0,
       "Right Option Key Sends": 2,
       "Use Separate Colors for Light and Dark Mode": false,
@@ -206,8 +207,8 @@
           "Escaping": 2
         },
         "0x79-0x1000000-0x10-0x1": {
-          "Action": 66,
-          "Text": "[{\"Action\":25,\"Text\":\"Select Output of Last Command\\nSelect Output of Last Command\",\"Version\":2,\"Apply Mode\":0,\"Escaping\":2},{\"Action\":69,\"Text\":\"\",\"Version\":2,\"Apply Mode\":0,\"Escaping\":2}]",
+          "Action": 73,
+          "Text": "[0v]kk$y",
           "Version": 2,
           "Apply Mode": 0,
           "Escaping": 2
