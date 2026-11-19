@@ -71,7 +71,7 @@ chsh -s $(which fish)
 - 基本CLI: `git`, `jq`, `fzf`, `ripgrep`, `tmux` 等
 - 開発支援: `docker-compose`, `lima`, `podman` 等  
 - 言語固有標準ツール: `uv` (Python), `mise`
-- Shell支援: `fish`, `zoxide`
+- Shell支援: `fish`
 
 **mise（プロジェクト別バージョン管理）**: プロジェクトごとにバージョンが重要なツール
 - 言語ランタイム: `go`, `node`

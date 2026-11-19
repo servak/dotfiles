@@ -36,10 +36,6 @@ if command -sq mise
     mise activate fish | source
 end
 
-if command -sq zoxide
-    zoxide init fish | source
-end
-
 # Completion pager colors: make entries, descriptions, and selection easier to distinguish.
 set -g fish_pager_color_completion brwhite
 set -g fish_pager_color_description brblack --italics

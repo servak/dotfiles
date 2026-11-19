@@ -3,7 +3,6 @@
     {
       "Name": "servak",
       "Guid": "servak-default",
-      "Rewritable": true,
       "Dynamic Profile Parent GUID": "CD643EE4-9ACF-4392-A657-017ED3F7F05C",
       "Normal Font": "SauceCodeProNFM 14",
       "Use Non-ASCII Font": true,

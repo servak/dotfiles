@@ -22,9 +22,29 @@
 	delete-merged-branch = !git branch --merged | grep -v master | grep -v '*' | xargs -I % git branch -d %
 [merge]
 	tool = vimdiff
+# 差分は delta で表示する。delta がない環境（Linux サーバーなど）では diff-highlight に戻す
 [pager]
-	show = diff-highlight
-	diff = diff-highlight
+	show = "if command -v delta >/dev/null 2>&1; then delta; else diff-highlight | less -R; fi"
+	diff = "if command -v delta >/dev/null 2>&1; then delta; else diff-highlight | less -R; fi"
+	log = "if command -v delta >/dev/null 2>&1; then delta; else less -R; fi"
+[delta]
+	navigate = true
+	line-numbers = true
+	# 色は控えめに: コードの色付けは落ち着いたテーマ、追加・削除の背景は薄く
+	syntax-theme = OneHalfDark
+	minus-style = syntax "#4a2c2c"
+	minus-emph-style = syntax "#6e3a3a"
+	plus-style = syntax "#2c4a32"
+	plus-emph-style = syntax "#3a6e44"
+	file-style = "#80ebdf"
+	file-decoration-style = "#80ebdf" ul
+	hunk-header-style = file line-number "#7a7a7a"
+	hunk-header-file-style = "#80ebdf"
+	hunk-header-line-number-style = "#a0a0a0"
+	hunk-header-decoration-style = "#4a4a4a" box
+	line-numbers-minus-style = "#d0716f"
+	line-numbers-plus-style = "#7fbf7f"
+	line-numbers-zero-style = "#5a5a5a"
 [push]
 	default = current
 [credential]

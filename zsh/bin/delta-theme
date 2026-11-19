@@ -1,0 +1,27 @@
+#!/bin/sh
+# delta のコードの色付けテーマを、プレビューを見ながら fzf で選ぶ。
+#   delta-theme
+# 今いるリポジトリに差分があればそれを、なければ直前のコミットを見本にする。
+# 選んだテーマは ~/.gitconfig のリンク先（dotfiles の gitconfig）に書く。
+set -e
+
+sample=$(mktemp)
+trap 'rm -f "$sample"' EXIT
+git -c core.pager=cat diff 2>/dev/null >"$sample" || true
+[ -s "$sample" ] || git -c core.pager=cat show HEAD 2>/dev/null >"$sample" || true
+if [ ! -s "$sample" ]; then
+    echo "delta-theme: 見本にする差分がありません（git のリポジトリで実行してください）" >&2
+    exit 1
+fi
+
+current=$(git config --get delta.syntax-theme || true)
+theme=$(delta --list-syntax-themes | awk -F '\t' '$1 == "dark" { print $2 }' | fzf \
+    --border-label " delta theme (今: ${current:-未設定}) " \
+    --preview "delta --paging=never --width=\$FZF_PREVIEW_COLUMNS --syntax-theme={} <'$sample'" \
+    --preview-window 'right,75%,border-left')
+[ -n "$theme" ] || exit 0
+
+# ~/.gitconfig はリンクなので、git config --global で書くとリンクがファイルに置き換わる。リンク先に書く
+config=$(readlink -f "$HOME/.gitconfig")
+git config --file "$config" delta.syntax-theme "$theme"
+echo "delta のテーマを $theme にしました（$config）"
