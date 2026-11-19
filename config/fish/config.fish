@@ -2,7 +2,7 @@ set -g fish_greeting
 
 set -gx EDITOR vim
 set -gx PYTHONDONTWRITEBYTECODE 1
-# 色は iTerm2 / Ghostty の配色（背景 #2b2b2b、アクセント #80ebdf）に合わせる
+# 色は iTerm2 / WezTerm の配色（背景 #2b2b2b、アクセント #80ebdf）に合わせる
 set -gx FZF_DEFAULT_OPTS "--height=60% --layout=reverse --border=rounded --margin=0,1 --info=inline-right --prompt='❯ ' --pointer='▌' --marker='┃' --separator='─' --scrollbar='│' --color=fg:#d0d0d0,bg:-1,hl:#80ebdf,fg+:#ffffff,bg+:#3a3a3a,hl+:#80ebdf --color=border:#4a4a4a,label:#80ebdf,prompt:#80ebdf,pointer:#80ebdf,marker:#f0e68c,info:#7a7a7a,spinner:#80ebdf,header:#7a7a7a"
 set -gx WORDCHARS '*?_-.[]~&;!#$%^(){}<>'
 

@@ -1,6 +1,6 @@
 DOTFILES
 ========
-vim, zsh, fish, tmux, Ghostty, WezTermの設定ファイルをまとめた。
+vim, zsh, fish, tmux, iTerm2, WezTermの設定ファイルをまとめた。
 
 ## Installation
 
@@ -25,12 +25,12 @@ brew bundle install
 mise install
 ```
 
-#### 3. Ghostty / WezTerm
+#### 3. iTerm2 / WezTerm
 
-`make config` に `Ghostty` と `WezTerm` の設定が含まれます。
-Laptop では GUI ターミナルとして `Ghostty` または `WezTerm` を使い、Linux の踏み台 VM では引き続き `tmux` を使う想定です。
+`make config` に `iTerm2` と `WezTerm` の設定が含まれます。
+Laptop では GUI ターミナルとして `iTerm2`（予備に `WezTerm`）を使い、Linux の踏み台 VM では引き続き `tmux` を使う想定です。
 
-`WezTerm` は `Ctrl-t` を leader にして、既存の `Ghostty` / `tmux` に近い操作へ寄せています。
+`WezTerm` は `Ctrl-t` を leader にして、`tmux` に近い操作へ寄せています。
 特に `Ctrl-t [` で copy-mode に入り、`hjkl` 移動、`v` / `V` / `r` で選択、`y` でクリップボードへコピーできます。
 
 #### iTerm2
