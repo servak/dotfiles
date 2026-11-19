@@ -20,7 +20,7 @@ source ~/.zsh/modules/fzf.zsh          # FZF 設定 + 検索ウィジェット�
 # --- 順序厳守: キーマップ確定 → zsh-abbr → キーバインド ---
 # bindkey -e でキーマップを確定してから zsh-abbr を読む（先に読むと bindkey -e が
 # スペース展開バインドを reset する）。ウィジェットのキーバインドは abbr の後に
-# 適用し、^space などを abbr の magic-space より優先させる。
+# 適用し、abbr が付けるキーバインドより優先させる。
 bindkey -e
 source ~/.zsh/modules/abbreviations.zsh
 source ~/.zsh/modules/keybinds.zsh

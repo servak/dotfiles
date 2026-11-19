@@ -30,8 +30,6 @@ bindkey "\e[Z" reverse-menu-complete
 # ウィジェット登録とキーバインド
 zle -N do_enter
 bindkey '^j' do_enter
-zle -N filter-cmdsearch
-bindkey '^ ' filter-cmdsearch
 zle -N filter-cmdsearch-history
 bindkey '^r' filter-cmdsearch-history
 zle -N filter-src

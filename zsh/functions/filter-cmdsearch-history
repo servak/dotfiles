@@ -1,6 +1,12 @@
 local selected
 selected=$({ _cmdsearch_history_records; _cmdsearch_snippet_records; } \
-        | $FZF $FZF_OPTS --read0 --query "$LBUFFER")
+        | $FZF $FZF_OPTS --read0 --query "$LBUFFER" \
+        --scheme=history \
+        --border-label ' history · snippets ' \
+        --preview 'printf "%s\\n" {} | { bat --color=always --style=plain --language=sh 2>/dev/null || cat; }' \
+        --preview-window 'down,5,wrap,border-top,hidden' \
+        --bind 'ctrl-/:toggle-preview' \
+        --header 'C-/: コマンド全体を表示')
 if [ -n "$selected" ]; then
     BUFFER=$selected
     CURSOR=$#BUFFER

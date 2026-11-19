@@ -16,4 +16,4 @@ fi
 # _cmdsearch_history_records が $history 連想配列を使うため zsh/parameter をロード。
 zmodload -i zsh/parameter
 autoload -Uz _cmdsearch_history_records _cmdsearch_snippet_records \
-    filter-cmdsearch filter-cmdsearch-history filter-src filter-worktree vim-file-search filter-multi-ssh
+    filter-cmdsearch-history filter-src filter-worktree vim-file-search filter-multi-ssh

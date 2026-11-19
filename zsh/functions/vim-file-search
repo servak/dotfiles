@@ -1,11 +1,21 @@
+# ファイルを fzf で選んで vim で開く（Meta-v）。Tab で複数選べる
+# git の中では管理下のファイルを出す
+local list
 if [[ $(command git rev-parse --is-inside-work-tree 2> /dev/null) == 'true' ]]; then
-    files=$((git ls-files) | $FZF $FZF_OPTS -m | tr '\n' ' ')
+    list=$(git ls-files)
 else
-    files=$((find . -type f) | $FZF $FZF_OPTS -m | tr '\n' ' ')
+    list=$(find . -type f -not -path '*/.git/*' | sed 's|^\./||')
 fi
 
-if [ -n "$files" ]; then
-    BUFFER="v $files"
+local -a files
+files=("${(@f)$(print -r -- "$list" | $FZF $FZF_OPTS -m \
+    --query "$LBUFFER" \
+    --border-label ' files ' \
+    --preview 'bat --color=always --style=numbers --line-range=:300 {} 2>/dev/null || head -n 300 {}' \
+    --preview-window 'right,60%,border-left,<90(down,50%,border-top)')}")
+
+if [ -n "${files[1]}" ]; then
+    BUFFER="v ${(j: :)${(q)files[@]}}"
     zle accept-line
 fi
 zle clear-screen
